@@ -1,0 +1,92 @@
+// api/webhook.js
+// Vercel serverless function — receives Telegram bot updates.
+
+const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
+const WEBHOOK_SECRET = process.env.TELEGRAM_WEBHOOK_SECRET;
+const MINIAPP_URL = process.env.MINIAPP_URL || 'https://pocket-board-nine.vercel.app/';
+
+async function tg(method, payload) {
+  const res = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/${method}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+  return res.json();
+}
+
+export default async function handler(req, res) {
+  // Only accept POST
+  if (req.method !== 'POST') {
+    return res.status(405).json({ ok: false, error: 'method_not_allowed' });
+  }
+
+  // Verify the request really came from Telegram
+  const secret = req.headers['x-telegram-bot-api-secret-token'];
+  if (!WEBHOOK_SECRET || secret !== WEBHOOK_SECRET) {
+    return res.status(401).json({ ok: false, error: 'unauthorized' });
+  }
+
+  const update = req.body || {};
+
+  try {
+    const msg = update.message || update.edited_message;
+    const text = msg?.text || '';
+    const chatId = msg?.chat?.id;
+
+    if (!chatId) {
+      // Nothing to respond to (could be a callback, etc.)
+      return res.status(200).json({ ok: true });
+    }
+
+    // Handle /start -> send Mini App button
+    if (text.startsWith('/start')) {
+      await tg('sendMessage', {
+        chat_id: chatId,
+        text:
+          '👋 Welcome to *PocketBoard TG*\n\n' +
+          'Your everyday tools, inside Telegram — notes, tasks, links, QR, and image utilities.',
+        parse_mode: 'Markdown',
+        reply_markup: {
+          inline_keyboard: [[
+            {
+              text: '📋 Open PocketBoard',
+              web_app: { url: MINIAPP_URL },
+            },
+          ]],
+        },
+      });
+    }
+
+    // Handle /help
+    else if (text.startsWith('/help')) {
+      await tg('sendMessage', {
+        chat_id: chatId,
+        text:
+          '*Commands*\n' +
+          '/start — open PocketBoard\n' +
+          '/help — show this message\n' +
+          '/app — open the Mini App',
+        parse_mode: 'Markdown',
+      });
+    }
+
+    // Handle /app
+    else if (text.startsWith('/app')) {
+      await tg('sendMessage', {
+        chat_id: chatId,
+        text: 'Tap below to open PocketBoard:',
+        reply_markup: {
+          inline_keyboard: [[
+            { text: '📋 Open PocketBoard', web_app: { url: MINIAPP_URL } },
+          ]],
+        },
+      });
+    }
+
+    return res.status(200).json({ ok: true });
+  } catch (err) {
+    // Log internally but never leak details to Telegram
+    console.error('webhook error', err);
+    return res.status(200).json({ ok: true }); // always 200 so Telegram doesn't retry forever
+  }
+}
