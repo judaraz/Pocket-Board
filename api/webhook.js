@@ -1,7 +1,7 @@
 // api/webhook.js
 // Vercel serverless function — receives Telegram bot updates.
 
-const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
+const BOT_TOKEN = process.env.8812857538:AAEUD96Ltzqmxrx_uNX2K8n-xQEh7q-RSq0;
 const WEBHOOK_SECRET = process.env.TELEGRAM_WEBHOOK_SECRET;
 const MINIAPP_URL = process.env.MINIAPP_URL || 'https://pocket-board-nine.vercel.app/';
 
