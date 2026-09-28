@@ -5,41 +5,104 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>PocketBoard — Privacy Tools</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script src="https://sad.adsgram.ai/js/sad.min.js"></script>
 <style>
+  /* ============================================================
+     DESIGN TOKENS
+     ============================================================ */
   :root {
-    --bg: #f5f7fb;
+    --bg: #f6f7fc;
+    --bg-grad-1: #eef0ff;
+    --bg-grad-2: #f6f7fc;
     --surface: #ffffff;
-    --surface2: #f0f2f6;
-    --text: #1a1e2b;
-    --muted: #6b7280;
-    --border: #e2e6ee;
+    --surface2: #f2f4fa;
+    --surface-elev: #ffffff;
+    --text: #14172a;
+    --text-soft: #3d4159;
+    --muted: #737890;
+    --border: #e4e7f2;
+    --border-soft: #eef0f7;
+
     --accent: #5B5FEF;
-    --accentSoft: #eef0ff;
-    --danger: #e5484d;
-    --success: #30a46c;
-    --warning: #e5a000;
-    --radius: 16px;
-    --radius-sm: 12px;
-    --shadow: 0 4px 14px rgba(0,0,0,0.06);
-    --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-    --nav-height: 64px;
+    --accent-2: #8B5CF6;
+    --accent-soft: #eceeff;
+    --accent-glow: rgba(91, 95, 239, 0.28);
+
+    --blue: #3B82F6;
+    --blue-soft: #e6f0ff;
+    --blue-glow: rgba(59, 130, 246, 0.25);
+
+    --violet: #8B5CF6;
+    --violet-soft: #f0e9ff;
+    --violet-glow: rgba(139, 92, 246, 0.25);
+
+    --green: #10B981;
+    --green-soft: #e3f9f0;
+    --green-glow: rgba(16, 185, 129, 0.25);
+
+    --amber: #F59E0B;
+    --amber-soft: #fff4e0;
+
+    --rose: #F43F5E;
+    --rose-soft: #ffe8ed;
+
+    --radius-xl: 24px;
+    --radius: 18px;
+    --radius-sm: 14px;
+    --radius-xs: 10px;
+
+    --shadow-sm: 0 1px 2px rgba(20, 23, 42, 0.04), 0 1px 3px rgba(20, 23, 42, 0.03);
+    --shadow: 0 4px 16px rgba(20, 23, 42, 0.06), 0 2px 6px rgba(20, 23, 42, 0.04);
+    --shadow-lg: 0 12px 32px rgba(20, 23, 42, 0.10), 0 4px 12px rgba(20, 23, 42, 0.05);
+    --shadow-accent: 0 8px 24px var(--accent-glow);
+
+    --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Inter', Helvetica, Arial, sans-serif;
+    --nav-height: 68px;
     --safe-bottom: env(safe-area-inset-bottom, 0px);
-    --transition: 0.2s ease;
+    --transition: 0.22s cubic-bezier(0.4, 0, 0.2, 1);
   }
+
   [data-theme="dark"] {
-    --bg: #0f1117;
-    --surface: #1a1d27;
-    --surface2: #252833;
-    --text: #f0f2f7;
-    --muted: #9ca3af;
-    --border: #2d3140;
+    --bg: #0a0c17;
+    --bg-grad-1: #131729;
+    --bg-grad-2: #0a0c17;
+    --surface: #161a2b;
+    --surface2: #1e2338;
+    --surface-elev: #1c2136;
+    --text: #f2f4fb;
+    --text-soft: #c8cde0;
+    --muted: #8890ac;
+    --border: #262b42;
+    --border-soft: #1f2338;
+
     --accent: #7c7ff5;
-    --accentSoft: #1e2040;
-    --danger: #f2555a;
-    --success: #3dd68c;
-    --warning: #f5b82e;
-    --shadow: 0 4px 14px rgba(0,0,0,0.3);
+    --accent-2: #a78bfa;
+    --accent-soft: #1e2150;
+    --accent-glow: rgba(124, 127, 245, 0.35);
+
+    --blue: #60a5fa;
+    --blue-soft: #16294a;
+    --blue-glow: rgba(96, 165, 250, 0.30);
+
+    --violet: #a78bfa;
+    --violet-soft: #241a44;
+    --violet-glow: rgba(167, 139, 250, 0.30);
+
+    --green: #34d399;
+    --green-soft: #0f2e24;
+    --green-glow: rgba(52, 211, 153, 0.30);
+
+    --amber: #fbbf24;
+    --amber-soft: #2e2410;
+
+    --rose: #fb7185;
+    --rose-soft: #3a1620;
+
+    --shadow-sm: 0 1px 2px rgba(0,0,0,0.3);
+    --shadow: 0 4px 16px rgba(0,0,0,0.35), 0 2px 6px rgba(0,0,0,0.2);
+    --shadow-lg: 0 12px 32px rgba(0,0,0,0.45), 0 4px 12px rgba(0,0,0,0.3);
   }
+
   * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   html, body { height: 100%; overflow: hidden; }
   body {
@@ -47,22 +110,24 @@
     background: var(--bg);
     color: var(--text);
     transition: background var(--transition), color var(--transition);
-    display: flex;
-    flex-direction: column;
-    max-width: 100vw;
-    overflow-x: hidden;
+    display: flex; flex-direction: column;
+    max-width: 100vw; overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
   }
+
   #app { display: flex; flex-direction: column; height: 100dvh; max-width: 100vw; position: relative; }
+
   .screen {
-    flex: 1;
-    overflow-y: auto;
-    overflow-x: hidden;
-    padding: 16px 16px calc(var(--nav-height) + var(--safe-bottom) + 16px);
+    flex: 1; overflow-y: auto; overflow-x: hidden;
+    padding: 0 16px calc(var(--nav-height) + var(--safe-bottom) + 20px);
     -webkit-overflow-scrolling: touch;
   }
   .screen::-webkit-scrollbar { width: 4px; }
   .screen::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
 
+  /* ============================================================
+     BOTTOM NAVIGATION
+     ============================================================ */
   .bottom-nav {
     position: fixed; bottom: 0; left: 0; right: 0;
     height: calc(var(--nav-height) + var(--safe-bottom));
@@ -71,187 +136,698 @@
     border-top: 1px solid var(--border);
     display: flex; justify-content: space-around; align-items: center;
     z-index: 100;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
   }
+  [data-theme="dark"] .bottom-nav {
+    background: rgba(22, 26, 43, 0.85);
+  }
+
   .nav-item {
+    position: relative;
     display: flex; flex-direction: column; align-items: center; justify-content: center;
-    gap: 3px; padding: 8px 10px; border-radius: var(--radius-sm);
+    gap: 3px; padding: 8px 12px;
     background: none; border: none; color: var(--muted);
-    font-size: 10px; font-weight: 500; font-family: var(--font);
-    cursor: pointer; transition: color var(--transition), background var(--transition);
+    font-size: 10px; font-weight: 600; font-family: var(--font);
+    cursor: pointer; transition: color var(--transition);
     min-width: 64px; min-height: 48px;
   }
-  .nav-item.active { color: var(--accent); background: var(--accentSoft); }
-  .nav-item .nav-icon { font-size: 20px; line-height: 1; }
-  .nav-item .nav-label { font-size: 10px; font-weight: 600; letter-spacing: 0.02em; }
+  .nav-item .nav-icon {
+    font-size: 20px; line-height: 1;
+    transition: transform var(--transition);
+    filter: grayscale(1) opacity(0.6);
+  }
+  .nav-item .nav-label { font-size: 10px; letter-spacing: 0.02em; }
+  .nav-item.active { color: var(--accent); }
+  .nav-item.active .nav-icon {
+    transform: translateY(-2px) scale(1.1);
+    filter: none;
+  }
+  .nav-item.active::before {
+    content: '';
+    position: absolute;
+    top: 4px;
+    width: 28px; height: 3px;
+    border-radius: 3px;
+    background: linear-gradient(90deg, var(--accent), var(--accent-2));
+    box-shadow: 0 2px 8px var(--accent-glow);
+  }
 
-  h1 { font-size: 24px; font-weight: 700; line-height: 1.3; }
-  h2 { font-size: 16px; font-weight: 700; margin-bottom: 12px; }
-  h3 { font-size: 15px; font-weight: 600; margin-bottom: 8px; }
-  p { font-size: 14px; line-height: 1.5; color: var(--muted); }
+  /* ============================================================
+     TYPOGRAPHY
+     ============================================================ */
+  h1 { font-size: 26px; font-weight: 800; line-height: 1.2; letter-spacing: -0.02em; }
+  h2 { font-size: 17px; font-weight: 700; margin-bottom: 12px; letter-spacing: -0.01em; }
+  h3 { font-size: 15px; font-weight: 700; margin-bottom: 8px; }
+  p { font-size: 14px; line-height: 1.55; color: var(--muted); }
 
+  /* ============================================================
+     HERO / HOME HEADER
+     ============================================================ */
+  .hero {
+    position: relative;
+    margin: 0 -16px 20px;
+    padding: 32px 20px 28px;
+    background:
+      radial-gradient(120% 80% at 100% 0%, var(--accent-soft) 0%, transparent 55%),
+      radial-gradient(100% 70% at 0% 100%, var(--violet-soft) 0%, transparent 50%),
+      linear-gradient(180deg, var(--bg-grad-1) 0%, var(--bg-grad-2) 100%);
+    border-bottom-left-radius: 32px;
+    border-bottom-right-radius: 32px;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -60px; right: -60px;
+    width: 180px; height: 180px;
+    border-radius: 50%;
+    background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero::after {
+    content: '';
+    position: absolute;
+    bottom: -80px; left: -40px;
+    width: 160px; height: 160px;
+    border-radius: 50%;
+    background: radial-gradient(circle, var(--violet-glow) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero > * { position: relative; z-index: 1; }
+
+  .hero-greeting {
+    display: flex; align-items: center; gap: 12px;
+    margin-bottom: 20px;
+  }
+  .hero-avatar {
+    width: 44px; height: 44px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; font-weight: 700; color: #fff;
+    box-shadow: 0 6px 16px var(--accent-glow);
+    flex-shrink: 0;
+  }
+  .hero-greeting-text { flex: 1; min-width: 0; }
+  .hero-greeting-text .hello {
+    font-size: 12px; font-weight: 600;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  .hero-greeting-text .name {
+    font-size: 18px; font-weight: 700; color: var(--text);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+
+  .hero h1 {
+    font-size: 28px;
+    margin-bottom: 8px;
+    background: linear-gradient(135deg, var(--text) 0%, var(--text-soft) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .hero p { color: var(--text-soft); max-width: 320px; }
+
+  .privacy-pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--green-soft);
+    color: var(--green);
+    padding: 6px 12px; border-radius: 20px;
+    font-size: 11px; font-weight: 700;
+    margin-bottom: 16px;
+    border: 1px solid transparent;
+  }
+  [data-theme="dark"] .privacy-pill { border-color: rgba(52, 211, 153, 0.2); }
+
+  /* ============================================================
+     DROP ZONE
+     ============================================================ */
+  .drop-zone {
+    position: relative;
+    border-radius: var(--radius-xl);
+    padding: 3px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2), var(--blue), var(--accent));
+    background-size: 300% 300%;
+    animation: gradientShift 6s ease infinite;
+    cursor: pointer;
+    margin-bottom: 24px;
+    box-shadow: var(--shadow-accent);
+    transition: transform var(--transition);
+  }
+  .drop-zone:active { transform: scale(0.98); }
+  @keyframes gradientShift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+  .drop-zone-inner {
+    background: var(--surface);
+    border-radius: calc(var(--radius-xl) - 3px);
+    padding: 28px 20px;
+    text-align: center;
+    transition: background var(--transition);
+  }
+  .drop-zone .dz-icon {
+    width: 60px; height: 60px;
+    margin: 0 auto 12px;
+    border-radius: 20px;
+    background: linear-gradient(135deg, var(--accent-soft), var(--violet-soft));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 28px;
+  }
+  .drop-zone .dz-title { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
+  .drop-zone .dz-desc { font-size: 12px; color: var(--muted); }
+
+  /* ============================================================
+     CATEGORY PILLS
+     ============================================================ */
+  .category-header {
+    display: flex; align-items: center; gap: 10px;
+    margin: 24px 0 14px;
+  }
+  .category-pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px; font-weight: 700;
+    letter-spacing: 0.02em;
+  }
+  .category-pill.blue {
+    background: var(--blue-soft);
+    color: var(--blue);
+  }
+  .category-pill.violet {
+    background: var(--violet-soft);
+    color: var(--violet);
+  }
+  .category-pill.green {
+    background: var(--green-soft);
+    color: var(--green);
+  }
+  .category-pill .pill-icon { font-size: 14px; }
+  .category-line {
+    flex: 1; height: 1px;
+    background: linear-gradient(90deg, var(--border), transparent);
+  }
+
+  /* ============================================================
+     TOOL CARDS
+     ============================================================ */
+  .tool-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+  @media (min-width: 500px) { .tool-grid { grid-template-columns: repeat(3, 1fr); } }
+
+  .tool-card {
+    position: relative;
+    background: var(--surface);
+    border-radius: var(--radius);
+    padding: 16px 14px;
+    border: 1px solid var(--border-soft);
+    display: flex; flex-direction: column; gap: 10px;
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.2s ease;
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+  }
+  .tool-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: var(--card-accent, var(--accent));
+    opacity: 0;
+    transition: opacity var(--transition);
+  }
+  .tool-card:active {
+    transform: scale(0.97);
+    box-shadow: var(--shadow);
+  }
+  .tool-card:active::before { opacity: 1; }
+
+  .tool-card .tc-icon-wrap {
+    width: 42px; height: 42px;
+    border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+    background: var(--card-bg, var(--accent-soft));
+    box-shadow: 0 4px 12px var(--card-glow, var(--accent-glow));
+  }
+  .tool-card .tc-label {
+    font-size: 14px; font-weight: 700;
+    color: var(--text);
+    letter-spacing: -0.01em;
+  }
+  .tool-card .tc-desc {
+    font-size: 11px; color: var(--muted);
+    line-height: 1.35;
+  }
+
+  .tool-card[data-cat="image"] {
+    --card-accent: var(--blue);
+    --card-bg: var(--blue-soft);
+    --card-glow: var(--blue-glow);
+  }
+  .tool-card[data-cat="text"] {
+    --card-accent: var(--violet);
+    --card-bg: var(--violet-soft);
+    --card-glow: var(--violet-glow);
+  }
+
+  /* ============================================================
+     RECENT CHIPS
+     ============================================================ */
+  .recent-list { display: flex; flex-direction: column; gap: 8px; }
+  .recent-chip {
+    display: flex; align-items: center; gap: 12px;
+    background: var(--surface);
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-sm);
+    padding: 12px 14px;
+    box-shadow: var(--shadow-sm);
+  }
+  .recent-chip .rc-icon {
+    width: 34px; height: 34px;
+    border-radius: 11px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+    background: var(--green-soft);
+    flex-shrink: 0;
+  }
+  .recent-chip .rc-body { flex: 1; min-width: 0; }
+  .recent-chip .rc-title {
+    font-size: 13px; font-weight: 600;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .recent-chip .rc-time { font-size: 11px; color: var(--muted); }
+  .recent-chip .rc-badge {
+    font-size: 10px; font-weight: 700;
+    padding: 3px 8px; border-radius: 10px;
+    background: var(--green-soft); color: var(--green);
+    flex-shrink: 0;
+  }
+
+  /* ============================================================
+     CARDS
+     ============================================================ */
   .card {
     background: var(--surface);
     border-radius: var(--radius);
-    padding: 16px;
+    padding: 18px;
     box-shadow: var(--shadow);
-    border: 1px solid var(--border);
+    border: 1px solid var(--border-soft);
   }
   .card + .card { margin-top: 12px; }
 
+  .tool-header {
+    display: flex; align-items: center; gap: 12px;
+    margin: 0 -16px 20px;
+    padding: 20px 20px 20px;
+    background: linear-gradient(135deg, var(--tool-bg, var(--accent-soft)) 0%, transparent 100%);
+    border-bottom-left-radius: 24px;
+    border-bottom-right-radius: 24px;
+  }
+  .tool-header .th-icon {
+    width: 46px; height: 46px;
+    border-radius: 15px;
+    background: var(--tool-icon-bg, var(--accent-soft));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+    box-shadow: 0 6px 16px var(--tool-glow, var(--accent-glow));
+    flex-shrink: 0;
+  }
+  .tool-header h1 { flex: 1; font-size: 22px; }
+  .tool-header .back-btn {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    width: 40px; height: 40px;
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    cursor: pointer;
+    box-shadow: var(--shadow-sm);
+    transition: transform var(--transition);
+  }
+  .tool-header .back-btn:active { transform: scale(0.92); }
+
+  .tool-header[data-cat="image"] {
+    --tool-bg: var(--blue-soft);
+    --tool-icon-bg: var(--blue-soft);
+    --tool-glow: var(--blue-glow);
+  }
+  .tool-header[data-cat="text"] {
+    --tool-bg: var(--violet-soft);
+    --tool-icon-bg: var(--violet-soft);
+    --tool-glow: var(--violet-glow);
+  }
+
+  /* ============================================================
+     BUTTONS
+     ============================================================ */
   .btn {
     display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-    padding: 12px 20px; border-radius: var(--radius-sm); border: none;
-    font-size: 14px; font-weight: 600; font-family: var(--font);
-    cursor: pointer; transition: opacity 0.15s, transform 0.1s;
-    min-height: 44px; white-space: nowrap;
+    padding: 13px 20px; border-radius: var(--radius-sm);
+    border: none;
+    font-size: 14px; font-weight: 700; font-family: var(--font);
+    cursor: pointer;
+    transition: opacity 0.15s, transform 0.1s, box-shadow 0.2s;
+    min-height: 46px; white-space: nowrap;
+    letter-spacing: -0.01em;
   }
   .btn:active { transform: scale(0.97); }
   .btn:disabled { opacity: 0.5; pointer-events: none; }
-  .btn-primary { background: var(--accent); color: #fff; }
-  .btn-secondary { background: var(--surface2); color: var(--text); }
-  .btn-danger { background: var(--danger); color: #fff; }
-  .btn-success { background: var(--success); color: #fff; }
-  .btn-sm { padding: 8px 14px; font-size: 12px; min-height: 36px; }
+
+  .btn-primary {
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    color: #fff;
+    box-shadow: 0 6px 18px var(--accent-glow);
+  }
+  .btn-secondary {
+    background: var(--surface2);
+    color: var(--text);
+    border: 1px solid var(--border);
+  }
+  .btn-danger {
+    background: linear-gradient(135deg, var(--rose), #e11d48);
+    color: #fff;
+    box-shadow: 0 6px 18px rgba(244, 63, 94, 0.3);
+  }
+  .btn-success {
+    background: linear-gradient(135deg, var(--green), #059669);
+    color: #fff;
+    box-shadow: 0 6px 18px var(--green-glow);
+  }
   .btn-block { width: 100%; }
 
+  /* ============================================================
+     INPUTS
+     ============================================================ */
   .input, .textarea, .select {
-    width: 100%; padding: 12px 14px; border-radius: var(--radius-sm);
-    border: 1px solid var(--border); background: var(--surface); color: var(--text);
-    font-size: 14px; font-family: var(--font); outline: none;
-    transition: border var(--transition), box-shadow var(--transition);
-    min-height: 44px;
+    width: 100%; padding: 13px 15px;
+    border-radius: var(--radius-sm);
+    border: 1.5px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    font-size: 14px; font-family: var(--font);
+    outline: none;
+    transition: border var(--transition), box-shadow var(--transition), background var(--transition);
+    min-height: 46px;
   }
   .input:focus, .textarea:focus, .select:focus {
     border-color: var(--accent);
-    box-shadow: 0 0 0 3px var(--accentSoft);
+    box-shadow: 0 0 0 4px var(--accent-soft);
   }
   .textarea { resize: vertical; min-height: 100px; line-height: 1.5; }
-  .input-group { margin-bottom: 12px; }
-  .input-group label { display: block; font-size: 12px; font-weight: 600; color: var(--muted); margin-bottom: 6px; }
+  .input-group { margin-bottom: 14px; }
+  .input-group label {
+    display: block; font-size: 12px; font-weight: 700;
+    color: var(--text-soft); margin-bottom: 7px;
+    letter-spacing: 0.02em;
+  }
 
+  /* ============================================================
+     TOGGLE
+     ============================================================ */
+  .check-row {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 0;
+    font-size: 14px; font-weight: 500;
+    color: var(--text-soft);
+    cursor: pointer;
+  }
+  .check-row input[type="checkbox"] {
+    appearance: none; -webkit-appearance: none;
+    width: 44px; height: 26px;
+    border-radius: 13px;
+    background: var(--border);
+    position: relative;
+    cursor: pointer;
+    transition: background var(--transition);
+    flex-shrink: 0;
+  }
+  .check-row input[type="checkbox"]::after {
+    content: '';
+    position: absolute;
+    top: 3px; left: 3px;
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    transition: transform var(--transition);
+  }
+  .check-row input[type="checkbox"]:checked {
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  }
+  .check-row input[type="checkbox"]:checked::after {
+    transform: translateX(18px);
+  }
+
+  /* ============================================================
+     MODAL
+     ============================================================ */
   .modal-overlay {
-    position: fixed; inset: 0; background: rgba(0,0,0,0.5);
-    display: none; align-items: flex-end; justify-content: center;
+    position: fixed; inset: 0;
+    background: rgba(10, 12, 23, 0.55);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    display: none;
+    align-items: flex-end; justify-content: center;
     z-index: 200;
   }
   .modal-overlay.active { display: flex; }
   .modal {
     background: var(--surface);
-    border-radius: var(--radius) var(--radius) 0 0;
+    border-radius: var(--radius-xl) var(--radius-xl) 0 0;
     width: 100%; max-width: 500px;
     max-height: 85dvh; overflow-y: auto;
-    padding: 20px 16px calc(20px + var(--safe-bottom));
-    animation: slideUp 0.25s ease;
+    padding: 24px 18px calc(24px + var(--safe-bottom));
+    animation: slideUp 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 -12px 40px rgba(0,0,0,0.15);
   }
-  @keyframes slideUp { from { transform: translateY(40px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-  .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+  @keyframes slideUp {
+    from { transform: translateY(60px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+  .modal-header {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 18px;
+  }
   .modal-close {
-    background: none; border: none; font-size: 22px; color: var(--muted);
-    cursor: pointer; padding: 4px; line-height: 1;
-    min-width: 44px; min-height: 44px;
+    background: var(--surface2); border: none;
+    width: 36px; height: 36px;
+    border-radius: 12px;
+    color: var(--muted);
+    font-size: 16px;
+    cursor: pointer;
     display: flex; align-items: center; justify-content: center;
+    transition: background var(--transition);
   }
+  .modal-close:active { background: var(--border); }
 
+  /* ============================================================
+     TOAST
+     ============================================================ */
   .toast-container {
-    position: fixed; top: 16px; left: 50%; transform: translateX(-50%);
-    z-index: 300; display: flex; flex-direction: column; gap: 8px;
-    align-items: center; pointer-events: none; width: 90%; max-width: 400px;
+    position: fixed; top: 16px; left: 50%;
+    transform: translateX(-50%);
+    z-index: 300;
+    display: flex; flex-direction: column; gap: 8px;
+    align-items: center; pointer-events: none;
+    width: 90%; max-width: 400px;
   }
   .toast {
-    background: var(--surface); color: var(--text);
-    padding: 12px 18px; border-radius: var(--radius-sm);
-    box-shadow: 0 6px 20px rgba(0,0,0,0.15);
-    font-size: 13px; font-weight: 500;
-    border: 1px solid var(--border); animation: toastIn 0.3s ease;
-    display: flex; align-items: center; gap: 8px; pointer-events: auto;
+    background: var(--surface);
+    color: var(--text);
+    padding: 12px 16px;
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-lg);
+    font-size: 13px; font-weight: 600;
+    border: 1px solid var(--border-soft);
+    animation: toastIn 0.3s ease;
+    display: flex; align-items: center; gap: 10px;
+    pointer-events: auto;
+    width: 100%;
   }
-  .toast.success { border-left: 4px solid var(--success); }
-  .toast.error { border-left: 4px solid var(--danger); }
-  .toast.info { border-left: 4px solid var(--accent); }
-  .toast.warning { border-left: 4px solid var(--warning); }
-  @keyframes toastIn { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+  .toast .toast-icon {
+    width: 26px; height: 26px;
+    border-radius: 9px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 700;
+    flex-shrink: 0;
+  }
+  .toast.success .toast-icon { background: var(--green-soft); color: var(--green); }
+  .toast.error .toast-icon { background: var(--rose-soft); color: var(--rose); }
+  .toast.info .toast-icon { background: var(--accent-soft); color: var(--accent); }
+  .toast.warning .toast-icon { background: var(--amber-soft); color: var(--amber); }
+  @keyframes toastIn {
+    from { transform: translateY(-20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
 
-  .tool-grid {
-    display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;
-  }
-  @media (min-width: 500px) { .tool-grid { grid-template-columns: repeat(3, 1fr); } }
-  .tool-card {
-    background: var(--surface); border-radius: var(--radius-sm);
-    padding: 18px 14px; border: 1px solid var(--border);
-    display: flex; flex-direction: column; gap: 8px;
-    cursor: pointer; transition: background var(--transition), transform 0.1s;
-  }
-  .tool-card:active { transform: scale(0.97); background: var(--surface2); }
-  .tool-card .tc-icon { font-size: 26px; line-height: 1; }
-  .tool-card .tc-label { font-size: 13px; font-weight: 600; color: var(--text); }
-  .tool-card .tc-desc { font-size: 11px; color: var(--muted); }
-
+  /* ============================================================
+     IMAGE PREVIEW / STATS
+     ============================================================ */
   .image-preview {
-    width: 100%; border-radius: var(--radius-sm); border: 1px solid var(--border);
-    margin-bottom: 12px; max-height: 300px; object-fit: contain; background: var(--surface2);
+    width: 100%;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    margin-bottom: 14px;
+    max-height: 280px;
+    object-fit: contain;
+    background: var(--surface2);
   }
   .stat-row {
-    display: flex; justify-content: space-between; padding: 6px 0; font-size: 13px;
+    display: flex; justify-content: space-between;
+    padding: 8px 0; font-size: 13px;
+    border-bottom: 1px solid var(--border-soft);
   }
+  .stat-row:last-of-type { border-bottom: none; }
   .stat-row .stat-label { color: var(--muted); }
-  .stat-row .stat-value { font-weight: 600; }
+  .stat-row .stat-value { font-weight: 700; }
 
-  .empty-state { text-align: center; padding: 40px 20px; }
-  .empty-state .es-icon { font-size: 40px; margin-bottom: 12px; }
-  .empty-state .es-title { font-size: 16px; font-weight: 600; margin-bottom: 6px; }
+  .result-card {
+    background: linear-gradient(135deg, var(--green-soft) 0%, var(--surface) 100%);
+    border: 1px solid rgba(16, 185, 129, 0.2);
+    border-radius: var(--radius);
+    padding: 16px;
+    margin-top: 16px;
+  }
+
+  /* ============================================================
+     AD CARD
+     ============================================================ */
+  .ad-card {
+    background: linear-gradient(135deg, var(--amber-soft) 0%, var(--surface) 100%);
+    border: 1.5px solid rgba(245, 158, 11, 0.25);
+    border-radius: var(--radius);
+    padding: 18px;
+    margin-top: 14px;
+  }
+  .ad-card .ad-header {
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 10px;
+  }
+  .ad-card .ad-icon {
+    width: 36px; height: 36px;
+    border-radius: 12px;
+    background: var(--amber-soft);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+  .ad-card .ad-title {
+    font-size: 15px; font-weight: 700; color: var(--text);
+  }
+  .ad-card .ad-desc {
+    font-size: 13px; color: var(--text-soft);
+    margin-bottom: 14px;
+    line-height: 1.5;
+  }
+  .ad-card .ad-status {
+    font-size: 12px; font-weight: 700;
+    color: var(--green);
+    margin-top: 10px;
+    text-align: center;
+  }
+
+  /* ============================================================
+     EMPTY STATE
+     ============================================================ */
+  .empty-state { text-align: center; padding: 32px 20px; }
+  .empty-state .es-icon {
+    width: 64px; height: 64px;
+    margin: 0 auto 14px;
+    border-radius: 20px;
+    background: linear-gradient(135deg, var(--accent-soft), var(--violet-soft));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 28px;
+  }
+  .empty-state .es-title { font-size: 15px; font-weight: 700; margin-bottom: 6px; }
   .empty-state .es-desc { font-size: 13px; color: var(--muted); margin-bottom: 16px; }
 
-  .privacy-badge {
-    display: inline-flex; align-items: center; gap: 6px;
-    background: var(--accentSoft); color: var(--accent);
-    padding: 6px 12px; border-radius: 20px;
-    font-size: 11px; font-weight: 600;
-    margin-bottom: 16px;
+  /* ============================================================
+     SETTINGS
+     ============================================================ */
+  .settings-section { margin-bottom: 22px; }
+  .settings-section-title {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 12px; font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    margin-bottom: 10px;
+    padding-left: 4px;
+  }
+  .settings-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 16px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border-soft);
+    font-size: 14px; font-weight: 500;
+  }
+  .settings-row:first-of-type { border-radius: var(--radius) var(--radius) 0 0; }
+  .settings-row:last-of-type { border-radius: 0 0 var(--radius) var(--radius); border-bottom: none; }
+  .settings-row.clickable { cursor: pointer; transition: background var(--transition); }
+  .settings-row.clickable:active { background: var(--surface2); }
+  .settings-row .sr-icon {
+    width: 32px; height: 32px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 15px;
+    margin-right: 12px;
+    flex-shrink: 0;
+  }
+  .settings-row .sr-left {
+    display: flex; align-items: center;
+    flex: 1; min-width: 0;
   }
 
+  /* ============================================================
+     ONBOARDING
+     ============================================================ */
   .onboarding-screen {
-    position: fixed; inset: 0; background: var(--bg);
-    z-index: 500; display: flex; flex-direction: column;
+    position: fixed; inset: 0;
+    background:
+      radial-gradient(80% 60% at 50% 0%, var(--accent-soft) 0%, transparent 60%),
+      radial-gradient(60% 50% at 100% 100%, var(--violet-soft) 0%, transparent 60%),
+      var(--bg);
+    z-index: 500;
+    display: flex; flex-direction: column;
     align-items: center; justify-content: center;
     padding: 32px; text-align: center;
   }
-  .onboarding-screen .ob-logo {
-    width: 80px; height: 80px; border-radius: 22px;
-    background: var(--accent); display: flex; align-items: center; justify-content: center;
-    font-size: 36px; margin-bottom: 24px;
-    box-shadow: 0 8px 24px rgba(91, 95, 239, 0.3);
+  .onboarding-logo {
+    width: 88px; height: 88px;
+    border-radius: 26px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 40px;
+    margin-bottom: 24px;
+    box-shadow: 0 12px 36px var(--accent-glow);
+    animation: float 3s ease-in-out infinite;
   }
-  .onboarding-screen h1 { margin-bottom: 8px; }
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-6px); }
+  }
+  .onboarding-screen h1 { margin-bottom: 10px; }
   .onboarding-screen p { margin-bottom: 32px; max-width: 300px; }
 
-  .drop-zone {
-    border: 2px dashed var(--border);
-    border-radius: var(--radius);
-    padding: 40px 20px;
-    text-align: center;
-    cursor: pointer;
-    transition: border-color var(--transition), background var(--transition);
-    margin-bottom: 16px;
-  }
-  .drop-zone:active, .drop-zone.dragover {
-    border-color: var(--accent);
-    background: var(--accentSoft);
-  }
-  .drop-zone .dz-icon { font-size: 40px; margin-bottom: 8px; }
-  .drop-zone .dz-title { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
-  .drop-zone .dz-desc { font-size: 12px; color: var(--muted); }
-
-  .spinner {
-    width: 24px; height: 24px; border: 3px solid var(--border);
-    border-top-color: var(--accent); border-radius: 50%;
-    animation: spin 0.7s linear infinite; margin: 0 auto;
-  }
-  @keyframes spin { to { transform: rotate(360deg); } }
-
+  /* ============================================================
+     UTILITIES
+     ============================================================ */
   .flex { display: flex; }
+  .flex-col { flex-direction: column; }
   .items-center { align-items: center; }
   .justify-between { justify-content: space-between; }
   .gap-8 { gap: 8px; }
+  .gap-12 { gap: 12px; }
   .mt-8 { margin-top: 8px; }
   .mt-16 { margin-top: 16px; }
   .mb-8 { margin-bottom: 8px; }
@@ -260,6 +836,15 @@
   .text-sm { font-size: 12px; }
   .text-center { text-align: center; }
   .hidden { display: none !important; }
+  .spinner {
+    width: 22px; height: 22px;
+    border: 3px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    margin: 0 auto;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
 
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after {
@@ -272,10 +857,10 @@
 <body>
 <div id="app">
   <div id="onboarding" class="onboarding-screen hidden">
-    <div class="ob-logo">🔒</div>
+    <div class="onboarding-logo">🔒</div>
     <h1>PocketBoard</h1>
     <p>Handle sensitive files and text without uploading them. Everything runs on your device.</p>
-    <button class="btn btn-primary btn-block" id="onboardingBtn" style="max-width:280px;">Get Started</button>
+    <button class="btn btn-primary" id="onboardingBtn" style="max-width:280px; width:100%;">Get Started</button>
   </div>
 
   <main class="screen" id="mainScreen"></main>
@@ -307,14 +892,16 @@
 
 // ============================================================
 // POCKETBOARD — Privacy Tools
-// Local-only file and text utilities for Telegram
+// Colorful redesign + AdsGram rewarded ads
 // ============================================================
 
 const CONFIG = {
-  APP_VERSION: '1.0.0',
+  APP_VERSION: '1.2.0',
   MAX_FILE_SIZE: 20 * 1024 * 1024,
-  API_BASE_URL: '', // set to your Vercel domain if the Mini App is served elsewhere
-  SEND_FILE_ENDPOINT: '/api/send-file'
+  SEND_FILE_ENDPOINT: '/api/send-file',
+  // AdsGram: replace with your real blockId from partner.adsgram.ai
+  ADSGRAM_BLOCK_ID: 'your-block-id',
+  ADSGRAM_ENABLED: true
 };
 
 // -------------------- TELEGRAM --------------------
@@ -353,17 +940,21 @@ const Telegram = (() => {
     } catch(e) {}
   }
 
-  function getChatId() {
-    // Telegram provides user id in initDataUnsafe; the bot can send to a user by their user id
-    return user?.id || null;
-  }
-
+  function getChatId() { return user?.id || null; }
   function getUserName() {
     if (!user) return 'there';
     return user.first_name || user.username || 'there';
   }
+  function getInitial() {
+    const n = getUserName();
+    return n.charAt(0).toUpperCase();
+  }
 
-  return { init, getTheme, haptic, getChatId, getUserName, get user() { return user; }, get isAvailable() { return isAvailable; } };
+  return {
+    init, getTheme, haptic, getChatId, getUserName, getInitial,
+    get user() { return user; },
+    get isAvailable() { return isAvailable; }
+  };
 })();
 
 // -------------------- STORAGE --------------------
@@ -379,23 +970,23 @@ const Storage = (() => {
     try { localStorage.setItem(PREFIX + key, JSON.stringify(val)); } catch(e) {}
   }
   function clearAll() {
-    const keys = Object.keys(localStorage).filter(k => k.startsWith(PREFIX));
-    keys.forEach(k => localStorage.removeItem(k));
+    Object.keys(localStorage)
+      .filter(k => k.startsWith(PREFIX))
+      .forEach(k => localStorage.removeItem(k));
   }
   return { getKV, setKV, clearAll };
 })();
 
 // -------------------- STATE --------------------
 const State = (() => {
-  let settings = {
-    theme: 'system',
-    onboardingDone: false
-  };
-  let history = []; // processed files history
+  let settings = { theme: 'system', onboardingDone: false };
+  let history = [];
+  let unlockedFeatures = {}; // featureId -> true (persisted)
 
   function load() {
     settings = Storage.getKV('settings', settings);
     history = Storage.getKV('history', []);
+    unlockedFeatures = Storage.getKV('unlocked', {});
   }
   function saveSettings() { Storage.setKV('settings', settings); }
   function addHistory(entry) {
@@ -407,11 +998,77 @@ const State = (() => {
     history = [];
     Storage.setKV('history', history);
   }
+  function isUnlocked(featureId) {
+    return !!unlockedFeatures[featureId];
+  }
+  function unlockFeature(featureId) {
+    unlockedFeatures[featureId] = true;
+    Storage.setKV('unlocked', unlockedFeatures);
+  }
   return {
     get settings() { return settings; },
     get history() { return history; },
-    load, saveSettings, addHistory, clearHistory
+    load, saveSettings, addHistory, clearHistory,
+    isUnlocked, unlockFeature
   };
+})();
+
+// -------------------- ADSGRAM --------------------
+const Ads = (() => {
+  let AdController = null;
+  let initialized = false;
+
+  function init() {
+    if (initialized) return;
+    if (!CONFIG.ADSGRAM_ENABLED) return;
+    if (typeof window.Adsgram === 'undefined') {
+      console.warn('AdsGram SDK not loaded');
+      return;
+    }
+    if (!CONFIG.ADSGRAM_BLOCK_ID || CONFIG.ADSGRAM_BLOCK_ID === 'your-block-id') {
+      console.warn('AdsGram blockId not configured');
+      return;
+    }
+    try {
+      AdController = window.Adsgram.init({ blockId: CONFIG.ADSGRAM_BLOCK_ID });
+      initialized = true;
+      console.log('AdsGram initialized');
+    } catch (e) {
+      console.warn('AdsGram init failed:', e);
+    }
+  }
+
+  function isAvailable() {
+    return initialized && AdController !== null;
+  }
+
+  /**
+   * Show a rewarded ad.
+   * Returns a Promise that resolves to true if the user watched till the end.
+   * Resolves to false if unavailable, skipped, or errored.
+   */
+  function showRewarded() {
+    return new Promise((resolve) => {
+      if (!isAvailable()) {
+        resolve(false);
+        return;
+      }
+      AdController.show()
+        .then((result) => {
+          // Rewarded format: promise resolves only when watched till the end
+          if (result && result.done) {
+            resolve(true);
+          } else {
+            resolve(false);
+          }
+        })
+        .catch(() => {
+          resolve(false);
+        });
+    });
+  }
+
+  return { init, isAvailable, showRewarded };
 })();
 
 // -------------------- UI HELPERS --------------------
@@ -428,7 +1085,10 @@ const UI = (() => {
     const el = document.createElement('div');
     el.className = 'toast ' + type;
     const icons = { success: '✓', error: '✕', info: 'ℹ', warning: '⚠' };
-    el.innerHTML = `<span>${icons[type] || ''}</span><span>${escapeHtml(message)}</span>`;
+    el.innerHTML = `
+      <span class="toast-icon">${icons[type] || ''}</span>
+      <span>${escapeHtml(message)}</span>
+    `;
     container.appendChild(el);
     setTimeout(() => {
       el.style.opacity = '0';
@@ -463,8 +1123,8 @@ const UI = (() => {
     modal('Confirm', `
       <p style="margin-bottom:16px;">${escapeHtml(message)}</p>
       <div class="flex gap-8">
-        <button class="btn btn-secondary btn-block" id="confirmCancel">Cancel</button>
-        <button class="btn ${danger ? 'btn-danger' : 'btn-primary'} btn-block" id="confirmOk">${escapeHtml(confirmText)}</button>
+        <button class="btn btn-secondary" style="flex:1;" id="confirmCancel">Cancel</button>
+        <button class="btn ${danger ? 'btn-danger' : 'btn-primary'}" style="flex:1;" id="confirmOk">${escapeHtml(confirmText)}</button>
       </div>
     `);
     document.getElementById('confirmCancel').onclick = () => closeModal();
@@ -510,39 +1170,20 @@ const UI = (() => {
       document.execCommand('copy');
       toast('Copied to clipboard', 'success');
       Telegram.haptic('success');
-    } catch(e) {
-      toast('Failed to copy', 'error');
-    }
+    } catch(e) { toast('Failed to copy', 'error'); }
     document.body.removeChild(ta);
   }
 
-  function generateId() {
-    return Date.now().toString(36) + Math.random().toString(36).substr(2, 9);
-  }
-
-  return { escapeHtml, toast, modal, closeModal, confirm, formatBytes, formatDate, copyToClipboard, generateId };
+  return { escapeHtml, toast, modal, closeModal, confirm, formatBytes, formatDate, copyToClipboard };
 })();
 
 // -------------------- FILE DELIVERY --------------------
-// Primary: send via bot. Fallback: long-press save.
 const FileDelivery = (() => {
   async function sendViaBot(blob, filename) {
     const chatId = Telegram.getChatId();
-    if (!chatId) {
-      return { ok: false, reason: 'no_chat_id' };
-    }
-
-    // Convert blob to base64
+    if (!chatId) return { ok: false, reason: 'no_chat_id' };
     const base64 = await blobToBase64(blob);
-
-    // Read the secret from a data attribute or meta tag. In production,
-    // the Mini App can fetch this from the bot's /start message, but for
-    // simplicity we expect it to be injected at build time or via env.
-    // For now, we assume the endpoint checks the Telegram initData signature
-    // OR the secret is stored in localStorage after first use.
-    // Recommended: backend validates initData instead of a shared secret.
     const secret = window.__POCKETBOARD_SECRET || '';
-
     try {
       const res = await fetch(CONFIG.SEND_FILE_ENDPOINT, {
         method: 'POST',
@@ -558,9 +1199,7 @@ const FileDelivery = (() => {
         })
       });
       const data = await res.json();
-      if (!res.ok || !data.ok) {
-        return { ok: false, reason: data.error || 'server_error' };
-      }
+      if (!res.ok || !data.ok) return { ok: false, reason: data.error || 'server_error' };
       return { ok: true };
     } catch (err) {
       return { ok: false, reason: 'network_error' };
@@ -576,26 +1215,23 @@ const FileDelivery = (() => {
     });
   }
 
-  // Fallback: show the image in a modal so the user can long-press / right-click to save
   function showSaveModal(blob, filename) {
     const url = URL.createObjectURL(blob);
     UI.modal('Save Image', `
-      <p class="text-sm text-muted mb-8">Long-press (mobile) or right-click (desktop) the image below and choose "Save Image".</p>
-      <img src="${url}" style="width:100%; border-radius:12px; border:1px solid var(--border); margin-bottom:12px;" alt="Result">
-      <button class="btn btn-primary btn-block" id="closeSaveModal">Done</button>
+      <p class="text-sm text-muted mb-8" style="margin-bottom:12px;">Long-press (mobile) or right-click (desktop) the image below and choose "Save Image".</p>
+      <img src="${url}" style="width:100%; border-radius:14px; border:1px solid var(--border); margin-bottom:14px;" alt="Result">
+      <button class="btn btn-primary" style="width:100%;" id="closeSaveModal">Done</button>
     `, () => URL.revokeObjectURL(url));
     document.getElementById('closeSaveModal').onclick = () => UI.closeModal(() => URL.revokeObjectURL(url));
   }
 
   async function deliver(blob, filename) {
-    // Try bot delivery first
     const result = await sendViaBot(blob, filename);
     if (result.ok) {
       UI.toast('Sent to your Telegram chat', 'success');
       Telegram.haptic('success');
       return true;
     }
-    // Fallback: show save modal
     if (result.reason === 'no_chat_id') {
       UI.toast('Open this app inside Telegram to receive files', 'warning');
     } else {
@@ -612,14 +1248,8 @@ const FileDelivery = (() => {
 const ImageTools = (() => {
   function loadImage(file) {
     return new Promise((resolve, reject) => {
-      if (!file.type.startsWith('image/')) {
-        reject(new Error('Invalid file type'));
-        return;
-      }
-      if (file.size > CONFIG.MAX_FILE_SIZE) {
-        reject(new Error('File too large (max 20MB)'));
-        return;
-      }
+      if (!file.type.startsWith('image/')) return reject(new Error('Invalid file type'));
+      if (file.size > CONFIG.MAX_FILE_SIZE) return reject(new Error('File too large (max 20MB)'));
       const reader = new FileReader();
       reader.onload = (e) => {
         const img = new Image();
@@ -639,8 +1269,7 @@ const ImageTools = (() => {
       h = Math.round(h * (maxWidth / w));
       w = maxWidth;
     }
-    canvas.width = w;
-    canvas.height = h;
+    canvas.width = w; canvas.height = h;
     const ctx = canvas.getContext('2d');
     if (format === 'image/jpeg') {
       ctx.fillStyle = '#ffffff';
@@ -654,8 +1283,7 @@ const ImageTools = (() => {
 
   function resize(img, newWidth, newHeight) {
     const canvas = document.createElement('canvas');
-    canvas.width = newWidth;
-    canvas.height = newHeight;
+    canvas.width = newWidth; canvas.height = newHeight;
     const ctx = canvas.getContext('2d');
     ctx.imageSmoothingEnabled = true;
     ctx.imageSmoothingQuality = 'high';
@@ -665,8 +1293,7 @@ const ImageTools = (() => {
 
   function convert(img, format = 'image/png', quality = 0.9) {
     const canvas = document.createElement('canvas');
-    canvas.width = img.width;
-    canvas.height = img.height;
+    canvas.width = img.width; canvas.height = img.height;
     const ctx = canvas.getContext('2d');
     if (format === 'image/jpeg') {
       ctx.fillStyle = '#ffffff';
@@ -680,8 +1307,7 @@ const ImageTools = (() => {
 
   function crop(img, x, y, w, h) {
     const canvas = document.createElement('canvas');
-    canvas.width = w;
-    canvas.height = h;
+    canvas.width = w; canvas.height = h;
     const ctx = canvas.getContext('2d');
     ctx.drawImage(img, x, y, w, h, 0, 0, w, h);
     return canvas;
@@ -716,9 +1342,7 @@ const ImageTools = (() => {
           for (let dy = 0; dy < pixelSize && py + dy < h; dy++) {
             for (let dx = 0; dx < pixelSize && px + dx < w; dx++) {
               const di = ((py + dy) * w + (px + dx)) * 4;
-              data[di] = rVal;
-              data[di+1] = gVal;
-              data[di+2] = bVal;
+              data[di] = rVal; data[di+1] = gVal; data[di+2] = bVal;
             }
           }
         }
@@ -737,26 +1361,23 @@ const ImageTools = (() => {
   return { loadImage, compress, resize, convert, crop, blurRegion, pixelateRegion, canvasToBlob };
 })();
 
-// -------------------- HASH / TEXT TOOLS --------------------
+// -------------------- TEXT TOOLS --------------------
 const TextTools = (() => {
   async function hash(text, algo = 'SHA-256') {
     const data = new TextEncoder().encode(text);
     const buf = await crypto.subtle.digest(algo, data);
     return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
   }
-
   function base64Encode(text) {
     const bytes = new TextEncoder().encode(text);
     const binary = Array.from(bytes, b => String.fromCharCode(b)).join('');
     return btoa(binary);
   }
-
   function base64Decode(b64) {
     const binary = atob(b64.trim());
     const bytes = Uint8Array.from(binary, c => c.charCodeAt(0));
     return new TextDecoder().decode(bytes);
   }
-
   function generatePassword(length = 16, opts = {}) {
     let chars = '';
     if (opts.upper !== false) chars += 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
@@ -770,7 +1391,6 @@ const TextTools = (() => {
     for (let i = 0; i < length; i++) pw += chars[array[i] % chars.length];
     return pw;
   }
-
   function generateUUID() {
     if (crypto.randomUUID) return crypto.randomUUID();
     return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
@@ -779,101 +1399,110 @@ const TextTools = (() => {
       return v.toString(16);
     });
   }
-
   return { hash, base64Encode, base64Decode, generatePassword, generateUUID };
 })();
 
-// -------------------- RENDER: HOME --------------------
+// -------------------- TOOL METADATA --------------------
+const TOOLS = {
+  imgcompress: { id: 'imgcompress', icon: '🗜️', name: 'Compress', desc: 'Reduce file size', cat: 'image' },
+  imgresize: { id: 'imgresize', icon: '📐', name: 'Resize', desc: 'Change dimensions', cat: 'image' },
+  imgconvert: { id: 'imgconvert', icon: '🔄', name: 'Convert', desc: 'JPG · PNG · WebP', cat: 'image' },
+  imgcrop: { id: 'imgcrop', icon: '✂️', name: 'Crop', desc: 'Trim the frame', cat: 'image' },
+  imgblur: { id: 'imgblur', icon: '🌫️', name: 'Blur', desc: 'Hide ID numbers', cat: 'image' },
+  imgpixelate: { id: 'imgpixelate', icon: '🔲', name: 'Pixelate', desc: 'Censor regions', cat: 'image' },
+  imgmetadata: { id: 'imgmetadata', icon: '🧹', name: 'Strip metadata', desc: 'Remove EXIF · GPS', cat: 'image' },
+  hash: { id: 'hash', icon: '#️⃣', name: 'Hash', desc: 'SHA-256 / 384 / 512', cat: 'text' },
+  base64: { id: 'base64', icon: '🔤', name: 'Base64', desc: 'Encode · decode', cat: 'text' },
+  password: { id: 'password', icon: '🔐', name: 'Password', desc: 'Cryptographic', cat: 'text' },
+  uuid: { id: 'uuid', icon: '🆔', name: 'UUID', desc: 'v4 generator', cat: 'text' }
+};
+
+const IMAGE_TOOL_IDS = ['imgcompress', 'imgresize', 'imgconvert', 'imgcrop', 'imgblur', 'imgpixelate', 'imgmetadata'];
+const TEXT_TOOL_IDS = ['hash', 'base64', 'password', 'uuid'];
+
+// -------------------- HOME --------------------
 function renderHome() {
   const screen = document.getElementById('mainScreen');
+  const initial = Telegram.getInitial();
   const name = Telegram.getUserName();
 
+  const recentHtml = State.history.length ? `
+    <div class="category-header">
+      <span class="category-pill green"><span class="pill-icon">⏱️</span> Recent</span>
+      <span class="category-line"></span>
+    </div>
+    <div class="recent-list">
+      ${State.history.slice(0, 4).map(h => `
+        <div class="recent-chip">
+          <div class="rc-icon">✓</div>
+          <div class="rc-body">
+            <div class="rc-title">${UI.escapeHtml(h.tool)} · ${UI.escapeHtml(h.filename || 'result')}</div>
+            <div class="rc-time">${UI.formatDate(h.timestamp)}</div>
+          </div>
+          <span class="rc-badge">Done</span>
+        </div>
+      `).join('')}
+    </div>
+  ` : '';
+
   screen.innerHTML = `
-    <div class="privacy-badge">🔒 Runs on your device</div>
-    <h1>Hi, ${UI.escapeHtml(name)}</h1>
-    <p style="margin-bottom:20px;">Handle sensitive files and text without uploading them.</p>
+    <div class="hero">
+      <div class="hero-greeting">
+        <div class="hero-avatar">${initial}</div>
+        <div class="hero-greeting-text">
+          <div class="hello">Welcome back</div>
+          <div class="name">${UI.escapeHtml(name)}</div>
+        </div>
+      </div>
+      <span class="privacy-pill">🔒 Runs on your device</span>
+      <h1>Clean your files<br>before you share.</h1>
+      <p>Blur IDs, strip metadata, and process sensitive images — all locally, nothing uploaded.</p>
+    </div>
 
     <div class="drop-zone" id="dropZone">
-      <div class="dz-icon">📎</div>
-      <div class="dz-title">Drop a file to get started</div>
-      <div class="dz-desc">Images up to 20MB · processed locally</div>
+      <div class="drop-zone-inner">
+        <div class="dz-icon">📎</div>
+        <div class="dz-title">Drop a file to get started</div>
+        <div class="dz-desc">Images up to 20MB · processed locally</div>
+      </div>
     </div>
     <input type="file" id="homeFileInput" accept="image/*" class="hidden">
 
-    <h2>Image tools</h2>
-    <div class="tool-grid">
-      <div class="tool-card" data-tool="imgcompress">
-        <span class="tc-icon">🗜️</span>
-        <span class="tc-label">Compress</span>
-        <span class="tc-desc">Reduce file size</span>
-      </div>
-      <div class="tool-card" data-tool="imgresize">
-        <span class="tc-icon">📐</span>
-        <span class="tc-label">Resize</span>
-        <span class="tc-desc">Change dimensions</span>
-      </div>
-      <div class="tool-card" data-tool="imgconvert">
-        <span class="tc-icon">🔄</span>
-        <span class="tc-label">Convert</span>
-        <span class="tc-desc">JPG · PNG · WebP</span>
-      </div>
-      <div class="tool-card" data-tool="imgcrop">
-        <span class="tc-icon">✂️</span>
-        <span class="tc-label">Crop</span>
-        <span class="tc-desc">Trim the frame</span>
-      </div>
-      <div class="tool-card" data-tool="imgblur">
-        <span class="tc-icon">🌫️</span>
-        <span class="tc-label">Blur</span>
-        <span class="tc-desc">Hide ID numbers</span>
-      </div>
-      <div class="tool-card" data-tool="imgpixelate">
-        <span class="tc-icon">🔲</span>
-        <span class="tc-label">Pixelate</span>
-        <span class="tc-desc">Censor regions</span>
-      </div>
-      <div class="tool-card" data-tool="imgmetadata">
-        <span class="tc-icon">🧹</span>
-        <span class="tc-label">Strip metadata</span>
-        <span class="tc-desc">Remove EXIF · GPS</span>
-      </div>
+    <div class="category-header">
+      <span class="category-pill blue"><span class="pill-icon">🖼️</span> Image</span>
+      <span class="category-line"></span>
     </div>
-
-    <h2 style="margin-top:20px;">Text tools</h2>
     <div class="tool-grid">
-      <div class="tool-card" data-tool="hash">
-        <span class="tc-icon">#️⃣</span>
-        <span class="tc-label">Hash</span>
-        <span class="tc-desc">SHA-256 / 384 / 512</span>
-      </div>
-      <div class="tool-card" data-tool="base64">
-        <span class="tc-icon">🔤</span>
-        <span class="tc-label">Base64</span>
-        <span class="tc-desc">Encode · decode</span>
-      </div>
-      <div class="tool-card" data-tool="password">
-        <span class="tc-icon">🔐</span>
-        <span class="tc-label">Password</span>
-        <span class="tc-desc">Cryptographic</span>
-      </div>
-      <div class="tool-card" data-tool="uuid">
-        <span class="tc-icon">🆔</span>
-        <span class="tc-label">UUID</span>
-        <span class="tc-desc">v4 generator</span>
-      </div>
-    </div>
-
-    ${State.history.length ? `
-      <h2 style="margin-top:20px;">Recent</h2>
-      <div class="card">
-        ${State.history.slice(0, 5).map(h => `
-          <div class="stat-row">
-            <span class="stat-label">${UI.escapeHtml(h.tool)} · ${UI.escapeHtml(h.filename || '')}</span>
-            <span class="stat-value">${UI.formatDate(h.timestamp)}</span>
+      ${IMAGE_TOOL_IDS.map(id => {
+        const t = TOOLS[id];
+        return `
+          <div class="tool-card" data-tool="${t.id}" data-cat="${t.cat}">
+            <div class="tc-icon-wrap">${t.icon}</div>
+            <div class="tc-label">${t.name}</div>
+            <div class="tc-desc">${t.desc}</div>
           </div>
-        `).join('')}
-      </div>
-    ` : ''}
+        `;
+      }).join('')}
+    </div>
+
+    <div class="category-header">
+      <span class="category-pill violet"><span class="pill-icon">🔑</span> Text & Security</span>
+      <span class="category-line"></span>
+    </div>
+    <div class="tool-grid">
+      ${TEXT_TOOL_IDS.map(id => {
+        const t = TOOLS[id];
+        return `
+          <div class="tool-card" data-tool="${t.id}" data-cat="${t.cat}">
+            <div class="tc-icon-wrap">${t.icon}</div>
+            <div class="tc-label">${t.name}</div>
+            <div class="tc-desc">${t.desc}</div>
+          </div>
+        `;
+      }).join('')}
+    </div>
+
+    ${recentHtml}
   `;
 
   const dropZone = document.getElementById('dropZone');
@@ -883,19 +1512,19 @@ function renderHome() {
   fileInput.onchange = (e) => {
     const file = e.target.files[0];
     if (!file) return;
-    // Route to compressor by default
-    openToolWithFile('imgcompress', file);
+    window.__pendingFile = file;
+    openTool('imgcompress');
     e.target.value = '';
   };
 
-  // Drag and drop
-  dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('dragover'); });
-  dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+  dropZone.addEventListener('dragover', (e) => { e.preventDefault(); });
   dropZone.addEventListener('drop', (e) => {
     e.preventDefault();
-    dropZone.classList.remove('dragover');
     const file = e.dataTransfer.files[0];
-    if (file) openToolWithFile('imgcompress', file);
+    if (file) {
+      window.__pendingFile = file;
+      openTool('imgcompress');
+    }
   });
 
   screen.querySelectorAll('.tool-card').forEach(el => {
@@ -906,33 +1535,47 @@ function renderHome() {
   });
 }
 
-// -------------------- RENDER: TOOLS --------------------
+// -------------------- TOOLS TAB --------------------
 function renderTools() {
   const screen = document.getElementById('mainScreen');
   screen.innerHTML = `
-    <h1>Tools</h1>
-    <p style="margin-bottom:20px;">Pick a tool to clean a file or text.</p>
-
-    <h2>🖼️ Image</h2>
-    <div class="tool-grid">
-      ${imageTools.map(t => `
-        <div class="tool-card" data-tool="${t.id}">
-          <span class="tc-icon">${t.icon}</span>
-          <span class="tc-label">${t.name}</span>
-          <span class="tc-desc">${t.desc}</span>
-        </div>
-      `).join('')}
+    <div class="hero" style="padding: 24px 20px 20px;">
+      <h1 style="font-size:24px;">All tools</h1>
+      <p>Pick a tool to clean a file or text.</p>
     </div>
 
-    <h2 style="margin-top:20px;">🔑 Text</h2>
+    <div class="category-header">
+      <span class="category-pill blue"><span class="pill-icon">🖼️</span> Image</span>
+      <span class="category-line"></span>
+    </div>
     <div class="tool-grid">
-      ${textTools.map(t => `
-        <div class="tool-card" data-tool="${t.id}">
-          <span class="tc-icon">${t.icon}</span>
-          <span class="tc-label">${t.name}</span>
-          <span class="tc-desc">${t.desc}</span>
-        </div>
-      `).join('')}
+      ${IMAGE_TOOL_IDS.map(id => {
+        const t = TOOLS[id];
+        return `
+          <div class="tool-card" data-tool="${t.id}" data-cat="${t.cat}">
+            <div class="tc-icon-wrap">${t.icon}</div>
+            <div class="tc-label">${t.name}</div>
+            <div class="tc-desc">${t.desc}</div>
+          </div>
+        `;
+      }).join('')}
+    </div>
+
+    <div class="category-header">
+      <span class="category-pill violet"><span class="pill-icon">🔑</span> Text & Security</span>
+      <span class="category-line"></span>
+    </div>
+    <div class="tool-grid">
+      ${TEXT_TOOL_IDS.map(id => {
+        const t = TOOLS[id];
+        return `
+          <div class="tool-card" data-tool="${t.id}" data-cat="${t.cat}">
+            <div class="tc-icon-wrap">${t.icon}</div>
+            <div class="tc-label">${t.name}</div>
+            <div class="tc-desc">${t.desc}</div>
+          </div>
+        `;
+      }).join('')}
     </div>
   `;
 
@@ -944,34 +1587,23 @@ function renderTools() {
   });
 }
 
-const imageTools = [
-  { id: 'imgcompress', icon: '🗜️', name: 'Compress', desc: 'Reduce file size' },
-  { id: 'imgresize', icon: '📐', name: 'Resize', desc: 'Change dimensions' },
-  { id: 'imgconvert', icon: '🔄', name: 'Convert', desc: 'JPG · PNG · WebP' },
-  { id: 'imgcrop', icon: '✂️', name: 'Crop', desc: 'Trim the frame' },
-  { id: 'imgblur', icon: '🌫️', name: 'Blur', desc: 'Hide ID numbers' },
-  { id: 'imgpixelate', icon: '🔲', name: 'Pixelate', desc: 'Censor regions' },
-  { id: 'imgmetadata', icon: '🧹', name: 'Strip metadata', desc: 'Remove EXIF · GPS' }
-];
-
-const textTools = [
-  { id: 'hash', icon: '#️⃣', name: 'Hash', desc: 'SHA-256 / 384 / 512' },
-  { id: 'base64', icon: '🔤', name: 'Base64', desc: 'Encode · decode' },
-  { id: 'password', icon: '🔐', name: 'Password', desc: 'Cryptographic' },
-  { id: 'uuid', icon: '🆔', name: 'UUID', desc: 'v4 generator' }
-];
-
-// -------------------- RENDER: SETTINGS --------------------
+// -------------------- SETTINGS TAB --------------------
 function renderSettings() {
   const screen = document.getElementById('mainScreen');
   screen.innerHTML = `
-    <h1>Settings</h1>
+    <div class="hero" style="padding: 24px 20px 20px;">
+      <h1 style="font-size:24px;">Settings</h1>
+      <p>Preferences and privacy.</p>
+    </div>
 
-    <div class="card mt-16">
-      <h3>Appearance</h3>
-      <div class="input-group mt-8">
-        <label>Theme</label>
-        <select class="select" id="themeSelect">
+    <div class="settings-section">
+      <div class="settings-section-title">🎨 Appearance</div>
+      <div class="settings-row">
+        <div class="sr-left">
+          <div class="sr-icon" style="background:var(--accent-soft); color:var(--accent);">🌓</div>
+          <span>Theme</span>
+        </div>
+        <select class="select" id="themeSelect" style="width:auto; min-width:120px; padding:8px 12px; min-height:auto;">
           <option value="system" ${State.settings.theme === 'system' ? 'selected' : ''}>System</option>
           <option value="light" ${State.settings.theme === 'light' ? 'selected' : ''}>Light</option>
           <option value="dark" ${State.settings.theme === 'dark' ? 'selected' : ''}>Dark</option>
@@ -979,21 +1611,50 @@ function renderSettings() {
       </div>
     </div>
 
-    <div class="card">
-      <h3>Privacy</h3>
-      <p class="text-sm" style="margin-top:8px;">All image processing happens in your browser. Files are never uploaded to a server. When you tap "Send to Telegram", the processed file is delivered to your chat via the bot — nothing is stored on the server.</p>
+    <div class="settings-section">
+      <div class="settings-section-title">🔒 Privacy</div>
+      <div class="settings-row" style="display:block; padding:16px;">
+        <p class="text-sm" style="line-height:1.6;">
+          All image processing happens in your browser. Files are never uploaded to a server.
+          When you tap <strong style="color:var(--text);">Send to Telegram</strong>, the processed file is delivered to your chat via the bot — nothing is stored on the server.
+        </p>
+      </div>
     </div>
 
-    <div class="card">
-      <h3>Data</h3>
-      <button class="btn btn-secondary btn-block mt-8" id="clearHistory">Clear local history</button>
-      <button class="btn btn-danger btn-block mt-8" id="clearAll">Clear all local data</button>
+    <div class="settings-section">
+      <div class="settings-section-title">💾 Data</div>
+      <div class="settings-row clickable" id="clearHistory">
+        <div class="sr-left">
+          <div class="sr-icon" style="background:var(--amber-soft); color:var(--amber);">🗂️</div>
+          <span>Clear local history</span>
+        </div>
+        <span style="color:var(--muted);">›</span>
+      </div>
+      <div class="settings-row clickable" id="clearAll">
+        <div class="sr-left">
+          <div class="sr-icon" style="background:var(--rose-soft); color:var(--rose);">🗑️</div>
+          <span style="color:var(--rose);">Clear all local data</span>
+        </div>
+        <span style="color:var(--muted);">›</span>
+      </div>
     </div>
 
-    <div class="card">
-      <h3>About</h3>
-      <div class="stat-row"><span class="stat-label">Version</span><span class="stat-value">${CONFIG.APP_VERSION}</span></div>
-      <div class="stat-row"><span class="stat-label">User</span><span class="stat-value">${UI.escapeHtml(Telegram.user?.username || 'guest')}</span></div>
+    <div class="settings-section">
+      <div class="settings-section-title">ℹ️ About</div>
+      <div class="settings-row">
+        <div class="sr-left">
+          <div class="sr-icon" style="background:var(--violet-soft); color:var(--violet);">📦</div>
+          <span>Version</span>
+        </div>
+        <span style="color:var(--muted); font-weight:600;">${CONFIG.APP_VERSION}</span>
+      </div>
+      <div class="settings-row">
+        <div class="sr-left">
+          <div class="sr-icon" style="background:var(--blue-soft); color:var(--blue);">👤</div>
+          <span>Signed in as</span>
+        </div>
+        <span style="color:var(--muted); font-weight:600;">${UI.escapeHtml(Telegram.user?.username || 'guest')}</span>
+      </div>
     </div>
   `;
 
@@ -1039,20 +1700,30 @@ function openTool(toolId) {
   }
 }
 
-function openToolWithFile(toolId, file) {
-  // Store the file temporarily, then open the tool and auto-load it
-  window.__pendingFile = file;
-  openTool(toolId);
+function toolHeader(toolId) {
+  const t = TOOLS[toolId];
+  return `
+    <div class="tool-header" data-cat="${t.cat}">
+      <div class="th-icon">${t.icon}</div>
+      <h1>${t.name}</h1>
+      <button class="back-btn" id="backBtn">←</button>
+    </div>
+  `;
 }
 
-// -------------------- TOOL: IMAGE COMPRESSOR --------------------
+function bindBack() {
+  const btn = document.getElementById('backBtn');
+  if (btn) btn.onclick = () => switchTab('tools');
+}
+
+// -------------------- IMAGE COMPRESSOR (with rewarded ads) --------------------
 function renderImageCompressor() {
   const screen = document.getElementById('mainScreen');
+  const BATCH_UNLOCK = 'batch_compress';
+  const isBatchUnlocked = State.isUnlocked(BATCH_UNLOCK);
+
   screen.innerHTML = `
-    <div class="flex items-center justify-between mb-16">
-      <h1 style="margin:0;">Compress</h1>
-      <button class="btn btn-secondary btn-sm" id="backBtn">← Back</button>
-    </div>
+    ${toolHeader('imgcompress')}
     <div class="card">
       <input type="file" id="fileInput" accept="image/*" class="hidden">
       <button class="btn btn-primary btn-block" id="selectBtn">📁 Select image</button>
@@ -1076,18 +1747,18 @@ function renderImageCompressor() {
         </div>
         <button class="btn btn-primary btn-block" id="processBtn">Compress</button>
       </div>
-      <div id="result" class="mt-16"></div>
+      <div id="result"></div>
     </div>
   `;
+  bindBack();
 
-  document.getElementById('backBtn').onclick = () => switchTab('home');
+  let originalFile = null;
+  let originalImg = null;
+
   document.getElementById('selectBtn').onclick = () => document.getElementById('fileInput').click();
   document.getElementById('quality').oninput = (e) => {
     document.getElementById('qualityVal').textContent = e.target.value + '%';
   };
-
-  let originalFile = null;
-  let originalImg = null;
 
   async function handleFile(file) {
     originalFile = file;
@@ -1096,14 +1767,11 @@ function renderImageCompressor() {
       document.getElementById('preview').classList.remove('hidden');
       document.getElementById('previewImg').src = originalImg.src;
       document.getElementById('result').innerHTML = '';
-    } catch(err) {
-      UI.toast(err.message, 'error');
-    }
+    } catch(err) { UI.toast(err.message, 'error'); }
   }
 
   document.getElementById('fileInput').onchange = (e) => {
-    const file = e.target.files[0];
-    if (file) handleFile(file);
+    if (e.target.files[0]) handleFile(e.target.files[0]);
     e.target.value = '';
   };
 
@@ -1118,71 +1786,89 @@ function renderImageCompressor() {
     const quality = parseInt(document.getElementById('quality').value) / 100;
     const format = document.getElementById('format').value;
     const maxWidth = parseInt(document.getElementById('maxWidth').value) || null;
-
     try {
       const { blob, width, height } = await ImageTools.compress(originalImg, quality, format, maxWidth);
       const saved = originalFile.size > 0 ? Math.round((1 - blob.size / originalFile.size) * 100) : 0;
 
+      // Ad card: shown only if the enhancement is not yet unlocked
+      const adCardHtml = (!isBatchUnlocked && Ads.isAvailable()) ? `
+        <div class="ad-card">
+          <div class="ad-header">
+            <div class="ad-icon">✨</div>
+            <div class="ad-title">Unlock Batch Processing</div>
+          </div>
+          <div class="ad-desc">Watch a short ad to process up to 10 images at once. This is an optional enhancement — single-image compression remains completely free.</div>
+          <button class="btn btn-primary btn-block" id="watchAdBtn">🎬 Watch Ad to Unlock</button>
+          <div class="ad-status hidden" id="adStatus"></div>
+        </div>
+      ` : '';
+
       document.getElementById('result').innerHTML = `
-        <div class="card">
+        <div class="result-card">
           <div class="stat-row"><span class="stat-label">Original</span><span class="stat-value">${UI.formatBytes(originalFile.size)}</span></div>
-          <div class="stat-row"><span class="stat-label">Compressed</span><span class="stat-value">${UI.formatBytes(blob.size)}</span></div>
-          <div class="stat-row"><span class="stat-label">Saved</span><span class="stat-value" style="color:var(--success);">${saved > 0 ? saved + '%' : '0%'}</span></div>
+          <div class="stat-row"><span class="stat-label">Compressed</span><span class="stat-value" style="color:var(--green);">${UI.formatBytes(blob.size)}</span></div>
+          <div class="stat-row"><span class="stat-label">Saved</span><span class="stat-value" style="color:var(--green);">${saved > 0 ? saved + '%' : '0%'}</span></div>
           <div class="stat-row"><span class="stat-label">Dimensions</span><span class="stat-value">${width} × ${height}</span></div>
           <button class="btn btn-primary btn-block mt-16" id="sendBtn">📤 Send to Telegram</button>
           <button class="btn btn-secondary btn-block mt-8" id="saveBtn">Save locally</button>
         </div>
+        ${adCardHtml}
       `;
 
       State.addHistory({ tool: 'Compress', filename: originalFile.name, timestamp: Date.now() });
-
-      document.getElementById('sendBtn').onclick = () => {
-        FileDelivery.deliver(blob, `compressed-${Date.now()}.${format.split('/')[1]}`);
-      };
+      document.getElementById('sendBtn').onclick = () => FileDelivery.deliver(blob, `compressed-${Date.now()}.${format.split('/')[1]}`);
       document.getElementById('saveBtn').onclick = () => FileDelivery.showSaveModal(blob, 'compressed.png');
-    } catch(err) {
-      UI.toast('Compression failed', 'error');
-    }
+
+      // Wire up the rewarded ad button
+      const watchAdBtn = document.getElementById('watchAdBtn');
+      if (watchAdBtn) {
+        watchAdBtn.onclick = async () => {
+          watchAdBtn.disabled = true;
+          watchAdBtn.textContent = 'Loading ad...';
+          const rewarded = await Ads.showRewarded();
+          if (rewarded) {
+            State.unlockFeature(BATCH_UNLOCK);
+            const status = document.getElementById('adStatus');
+            status.classList.remove('hidden');
+            status.textContent = '✓ Batch processing unlocked for this session';
+            watchAdBtn.style.display = 'none';
+            UI.toast('Feature unlocked', 'success');
+            Telegram.haptic('success');
+          } else {
+            watchAdBtn.disabled = false;
+            watchAdBtn.textContent = '🎬 Watch Ad to Unlock';
+            UI.toast('Advertisement unavailable. You can continue using the free version.', 'warning');
+          }
+        };
+      }
+    } catch(err) { UI.toast('Compression failed', 'error'); }
   };
 }
 
-// -------------------- TOOL: IMAGE RESIZER --------------------
+// -------------------- IMAGE RESIZER --------------------
 function renderImageResizer() {
   const screen = document.getElementById('mainScreen');
   screen.innerHTML = `
-    <div class="flex items-center justify-between mb-16">
-      <h1 style="margin:0;">Resize</h1>
-      <button class="btn btn-secondary btn-sm" id="backBtn">← Back</button>
-    </div>
+    ${toolHeader('imgresize')}
     <div class="card">
       <input type="file" id="fileInput" accept="image/*" class="hidden">
       <button class="btn btn-primary btn-block" id="selectBtn">📁 Select image</button>
       <div id="preview" class="mt-16 hidden">
         <img id="previewImg" class="image-preview" alt="Preview">
         <div class="flex gap-8">
-          <div class="input-group" style="flex:1;">
-            <label>Width</label>
-            <input class="input" type="number" id="width" min="1">
-          </div>
-          <div class="input-group" style="flex:1;">
-            <label>Height</label>
-            <input class="input" type="number" id="height" min="1">
-          </div>
+          <div class="input-group" style="flex:1;"><label>Width</label><input class="input" type="number" id="width" min="1"></div>
+          <div class="input-group" style="flex:1;"><label>Height</label><input class="input" type="number" id="height" min="1"></div>
         </div>
-        <div class="flex items-center gap-8 mb-16">
-          <input type="checkbox" id="lock" checked>
-          <label for="lock" style="font-size:13px;">Lock aspect ratio</label>
-        </div>
-        <button class="btn btn-primary btn-block" id="processBtn">Resize</button>
+        <label class="check-row"><input type="checkbox" id="lock" checked> Lock aspect ratio</label>
+        <button class="btn btn-primary btn-block mt-8" id="processBtn">Resize</button>
       </div>
-      <div id="result" class="mt-16"></div>
+      <div id="result"></div>
     </div>
   `;
-
-  document.getElementById('backBtn').onclick = () => switchTab('home');
-  document.getElementById('selectBtn').onclick = () => document.getElementById('fileInput').click();
+  bindBack();
 
   let img = null;
+  document.getElementById('selectBtn').onclick = () => document.getElementById('fileInput').click();
 
   async function handleFile(file) {
     try {
@@ -1204,7 +1890,6 @@ function renderImageResizer() {
     const w = parseInt(document.getElementById('width').value);
     if (w > 0) document.getElementById('height').value = Math.round(img.height * (w / img.width));
   };
-
   document.getElementById('height').oninput = () => {
     if (!img || !document.getElementById('lock').checked) return;
     const h = parseInt(document.getElementById('height').value);
@@ -1219,9 +1904,9 @@ function renderImageResizer() {
     const canvas = ImageTools.resize(img, w, h);
     const blob = await ImageTools.canvasToBlob(canvas, 'image/png');
     document.getElementById('result').innerHTML = `
-      <div class="card">
+      <div class="result-card">
         <div class="stat-row"><span class="stat-label">Original</span><span class="stat-value">${img.width} × ${img.height}</span></div>
-        <div class="stat-row"><span class="stat-label">New size</span><span class="stat-value">${w} × ${h}</span></div>
+        <div class="stat-row"><span class="stat-label">New size</span><span class="stat-value" style="color:var(--green);">${w} × ${h}</span></div>
         <button class="btn btn-primary btn-block mt-16" id="sendBtn">📤 Send to Telegram</button>
         <button class="btn btn-secondary btn-block mt-8" id="saveBtn">Save locally</button>
       </div>
@@ -1238,14 +1923,11 @@ function renderImageResizer() {
   }
 }
 
-// -------------------- TOOL: IMAGE CONVERTER --------------------
+// -------------------- IMAGE CONVERTER --------------------
 function renderImageConverter() {
   const screen = document.getElementById('mainScreen');
   screen.innerHTML = `
-    <div class="flex items-center justify-between mb-16">
-      <h1 style="margin:0;">Convert</h1>
-      <button class="btn btn-secondary btn-sm" id="backBtn">← Back</button>
-    </div>
+    ${toolHeader('imgconvert')}
     <div class="card">
       <input type="file" id="fileInput" accept="image/*" class="hidden">
       <button class="btn btn-primary btn-block" id="selectBtn">📁 Select image</button>
@@ -1265,15 +1947,14 @@ function renderImageConverter() {
         </div>
         <button class="btn btn-primary btn-block" id="processBtn">Convert</button>
       </div>
-      <div id="result" class="mt-16"></div>
+      <div id="result"></div>
     </div>
   `;
-
-  document.getElementById('backBtn').onclick = () => switchTab('home');
-  document.getElementById('selectBtn').onclick = () => document.getElementById('fileInput').click();
-  document.getElementById('quality').oninput = (e) => document.getElementById('qVal').textContent = e.target.value + '%';
+  bindBack();
 
   let img = null;
+  document.getElementById('selectBtn').onclick = () => document.getElementById('fileInput').click();
+  document.getElementById('quality').oninput = (e) => document.getElementById('qVal').textContent = e.target.value + '%';
 
   async function handleFile(file) {
     try {
@@ -1295,8 +1976,8 @@ function renderImageConverter() {
     const { blob } = await ImageTools.convert(img, format, quality);
     const ext = format.split('/')[1];
     document.getElementById('result').innerHTML = `
-      <div class="card">
-        <div class="stat-row"><span class="stat-label">Output</span><span class="stat-value">${ext.toUpperCase()}</span></div>
+      <div class="result-card">
+        <div class="stat-row"><span class="stat-label">Output</span><span class="stat-value" style="color:var(--green);">${ext.toUpperCase()}</span></div>
         <div class="stat-row"><span class="stat-label">Size</span><span class="stat-value">${UI.formatBytes(blob.size)}</span></div>
         <button class="btn btn-primary btn-block mt-16" id="sendBtn">📤 Send to Telegram</button>
         <button class="btn btn-secondary btn-block mt-8" id="saveBtn">Save locally</button>
@@ -1314,14 +1995,11 @@ function renderImageConverter() {
   }
 }
 
-// -------------------- TOOL: IMAGE CROP --------------------
+// -------------------- IMAGE CROPPER --------------------
 function renderImageCropper() {
   const screen = document.getElementById('mainScreen');
   screen.innerHTML = `
-    <div class="flex items-center justify-between mb-16">
-      <h1 style="margin:0;">Crop</h1>
-      <button class="btn btn-secondary btn-sm" id="backBtn">← Back</button>
-    </div>
+    ${toolHeader('imgcrop')}
     <div class="card">
       <input type="file" id="fileInput" accept="image/*" class="hidden">
       <button class="btn btn-primary btn-block" id="selectBtn">📁 Select image</button>
@@ -1347,14 +2025,13 @@ function renderImageCropper() {
         </div>
         <button class="btn btn-primary btn-block" id="processBtn">Crop</button>
       </div>
-      <div id="result" class="mt-16"></div>
+      <div id="result"></div>
     </div>
   `;
-
-  document.getElementById('backBtn').onclick = () => switchTab('home');
-  document.getElementById('selectBtn').onclick = () => document.getElementById('fileInput').click();
+  bindBack();
 
   let img = null;
+  document.getElementById('selectBtn').onclick = () => document.getElementById('fileInput').click();
 
   async function handleFile(file) {
     try {
@@ -1390,8 +2067,8 @@ function renderImageCropper() {
     const canvas = ImageTools.crop(img, x, y, w, h);
     const blob = await ImageTools.canvasToBlob(canvas, 'image/png');
     document.getElementById('result').innerHTML = `
-      <div class="card">
-        <div class="stat-row"><span class="stat-label">Cropped size</span><span class="stat-value">${w} × ${h}</span></div>
+      <div class="result-card">
+        <div class="stat-row"><span class="stat-label">Cropped size</span><span class="stat-value" style="color:var(--green);">${w} × ${h}</span></div>
         <button class="btn btn-primary btn-block mt-16" id="sendBtn">📤 Send to Telegram</button>
         <button class="btn btn-secondary btn-block mt-8" id="saveBtn">Save locally</button>
       </div>
@@ -1408,21 +2085,20 @@ function renderImageCropper() {
   }
 }
 
-// -------------------- TOOL: IMAGE BLUR / PIXELATE --------------------
+// -------------------- IMAGE EFFECT (blur / pixelate) --------------------
 function renderImageEffect(mode) {
-  const screen = document.getElementById('mainScreen');
   const isBlur = mode === 'blur';
+  const toolId = isBlur ? 'imgblur' : 'imgpixelate';
+  const screen = document.getElementById('mainScreen');
+
   screen.innerHTML = `
-    <div class="flex items-center justify-between mb-16">
-      <h1 style="margin:0;">${isBlur ? 'Blur' : 'Pixelate'}</h1>
-      <button class="btn btn-secondary btn-sm" id="backBtn">← Back</button>
-    </div>
+    ${toolHeader(toolId)}
     <div class="card">
       <input type="file" id="fileInput" accept="image/*" class="hidden">
       <button class="btn btn-primary btn-block" id="selectBtn">📁 Select image</button>
       <div id="preview" class="mt-16 hidden">
-        <canvas id="canvas" style="width:100%; border-radius:12px; border:1px solid var(--border); max-height:300px; object-fit:contain;"></canvas>
-        <p class="text-sm text-muted mt-8">Enter coordinates to select the region to ${isBlur ? 'blur' : 'pixelate'}.</p>
+        <canvas id="canvas" style="width:100%; border-radius:14px; border:1px solid var(--border); max-height:300px; object-fit:contain;"></canvas>
+        <p class="text-sm text-muted mt-8" style="margin-bottom:12px;">Enter coordinates to select the region to ${isBlur ? 'blur' : 'pixelate'}.</p>
         <div class="flex gap-8">
           <div class="input-group" style="flex:1;"><label>X</label><input class="input" type="number" id="fx" value="0" min="0"></div>
           <div class="input-group" style="flex:1;"><label>Y</label><input class="input" type="number" id="fy" value="0" min="0"></div>
@@ -1438,14 +2114,13 @@ function renderImageEffect(mode) {
         <button class="btn btn-primary btn-block" id="applyBtn">Apply</button>
         <button class="btn btn-secondary btn-block mt-8" id="resetBtn">Reset</button>
       </div>
-      <div id="result" class="mt-16"></div>
+      <div id="result"></div>
     </div>
   `;
-
-  document.getElementById('backBtn').onclick = () => switchTab('home');
-  document.getElementById('selectBtn').onclick = () => document.getElementById('fileInput').click();
+  bindBack();
 
   let originalImg = null;
+  document.getElementById('selectBtn').onclick = () => document.getElementById('fileInput').click();
 
   async function handleFile(file) {
     try {
@@ -1456,7 +2131,32 @@ function renderImageEffect(mode) {
       canvas.height = originalImg.height;
       const ctx = canvas.getContext('2d');
       ctx.drawImage(originalImg, 0, 0);
+      showResultButtons();
     } catch(err) { UI.toast(err.message, 'error'); }
+  }
+
+  function showResultButtons() {
+    const resultEl = document.getElementById('result');
+    if (resultEl && !resultEl.innerHTML) {
+      resultEl.innerHTML = `
+        <div class="result-card">
+          <div class="stat-row"><span class="stat-label">Status</span><span class="stat-value" style="color:var(--green);">Ready</span></div>
+          <button class="btn btn-primary btn-block mt-16" id="sendBtn">📤 Send to Telegram</button>
+          <button class="btn btn-secondary btn-block mt-8" id="saveBtn">Save locally</button>
+        </div>
+      `;
+      document.getElementById('sendBtn').onclick = async () => {
+        const canvas = document.getElementById('canvas');
+        const blob = await ImageTools.canvasToBlob(canvas, 'image/png');
+        State.addHistory({ tool: isBlur ? 'Blur' : 'Pixelate', filename: 'result.png', timestamp: Date.now() });
+        FileDelivery.deliver(blob, `${mode}-${Date.now()}.png`);
+      };
+      document.getElementById('saveBtn').onclick = async () => {
+        const canvas = document.getElementById('canvas');
+        const blob = await ImageTools.canvasToBlob(canvas, 'image/png');
+        FileDelivery.showSaveModal(blob, `${mode}.png`);
+      };
+    }
   }
 
   document.getElementById('fileInput').onchange = (e) => {
@@ -1484,31 +2184,6 @@ function renderImageEffect(mode) {
     ctx.drawImage(originalImg, 0, 0);
   };
 
-  // Auto-show send buttons after first apply
-  const observer = new MutationObserver(() => {
-    const canvas = document.getElementById('canvas');
-    if (canvas && !canvas.dataset.hooked) {
-      canvas.dataset.hooked = 'true';
-      const resultEl = document.getElementById('result');
-      if (resultEl && !resultEl.innerHTML) {
-        resultEl.innerHTML = `
-          <button class="btn btn-primary btn-block mt-16" id="sendBtn">📤 Send to Telegram</button>
-          <button class="btn btn-secondary btn-block mt-8" id="saveBtn">Save locally</button>
-        `;
-        document.getElementById('sendBtn').onclick = async () => {
-          const blob = await ImageTools.canvasToBlob(canvas, 'image/png');
-          State.addHistory({ tool: isBlur ? 'Blur' : 'Pixelate', filename: 'result.png', timestamp: Date.now() });
-          FileDelivery.deliver(blob, `${mode}-${Date.now()}.png`);
-        };
-        document.getElementById('saveBtn').onclick = async () => {
-          const blob = await ImageTools.canvasToBlob(canvas, 'image/png');
-          FileDelivery.showSaveModal(blob, `${mode}.png`);
-        };
-      }
-    }
-  });
-  observer.observe(document.getElementById('preview'), { childList: true, subtree: true });
-
   if (window.__pendingFile) {
     const f = window.__pendingFile;
     window.__pendingFile = null;
@@ -1516,30 +2191,28 @@ function renderImageEffect(mode) {
   }
 }
 
-// -------------------- TOOL: METADATA CLEANER --------------------
+// -------------------- METADATA CLEANER --------------------
 function renderMetadataCleaner() {
   const screen = document.getElementById('mainScreen');
   screen.innerHTML = `
-    <div class="flex items-center justify-between mb-16">
-      <h1 style="margin:0;">Strip metadata</h1>
-      <button class="btn btn-secondary btn-sm" id="backBtn">← Back</button>
-    </div>
+    ${toolHeader('imgmetadata')}
     <div class="card">
-      <p class="text-sm" style="margin-bottom:16px;">Redrawing the image through Canvas creates a new file without common embedded metadata (EXIF, GPS, camera info).</p>
+      <p class="text-sm" style="margin-bottom:16px; color:var(--text-soft);">
+        Redrawing the image through Canvas creates a new file without common embedded metadata (EXIF, GPS, camera info).
+      </p>
       <input type="file" id="fileInput" accept="image/*" class="hidden">
       <button class="btn btn-primary btn-block" id="selectBtn">📁 Select image</button>
       <div id="preview" class="mt-16 hidden">
         <img id="previewImg" class="image-preview" alt="Preview">
         <button class="btn btn-primary btn-block" id="processBtn">Strip metadata</button>
       </div>
-      <div id="result" class="mt-16"></div>
+      <div id="result"></div>
     </div>
   `;
-
-  document.getElementById('backBtn').onclick = () => switchTab('home');
-  document.getElementById('selectBtn').onclick = () => document.getElementById('fileInput').click();
+  bindBack();
 
   let img = null;
+  document.getElementById('selectBtn').onclick = () => document.getElementById('fileInput').click();
 
   async function handleFile(file) {
     try {
@@ -1559,8 +2232,8 @@ function renderMetadataCleaner() {
     const canvas = ImageTools.resize(img, img.width, img.height);
     const blob = await ImageTools.canvasToBlob(canvas, 'image/png');
     document.getElementById('result').innerHTML = `
-      <div class="card">
-        <div class="stat-row"><span class="stat-label">Output</span><span class="stat-value">PNG (clean)</span></div>
+      <div class="result-card">
+        <div class="stat-row"><span class="stat-label">Output</span><span class="stat-value" style="color:var(--green);">PNG (clean)</span></div>
         <div class="stat-row"><span class="stat-label">Size</span><span class="stat-value">${UI.formatBytes(blob.size)}</span></div>
         <button class="btn btn-primary btn-block mt-16" id="sendBtn">📤 Send to Telegram</button>
         <button class="btn btn-secondary btn-block mt-8" id="saveBtn">Save locally</button>
@@ -1578,14 +2251,11 @@ function renderMetadataCleaner() {
   }
 }
 
-// -------------------- TOOL: HASH --------------------
+// -------------------- HASH --------------------
 function renderHashTool() {
   const screen = document.getElementById('mainScreen');
   screen.innerHTML = `
-    <div class="flex items-center justify-between mb-16">
-      <h1 style="margin:0;">Hash</h1>
-      <button class="btn btn-secondary btn-sm" id="backBtn">← Back</button>
-    </div>
+    ${toolHeader('hash')}
     <div class="card">
       <div class="input-group">
         <label>Input</label>
@@ -1602,13 +2272,13 @@ function renderHashTool() {
       <button class="btn btn-primary btn-block mb-16" id="hashBtn">Generate hash</button>
       <div class="input-group">
         <label>Hash</label>
-        <textarea class="textarea" id="output" rows="3" readonly style="font-family:monospace; font-size:12px;"></textarea>
+        <textarea class="textarea" id="output" rows="3" readonly style="font-family:ui-monospace,monospace; font-size:12px;"></textarea>
       </div>
-      <button class="btn btn-secondary btn-block mt-8" id="copyBtn">Copy hash</button>
+      <button class="btn btn-secondary btn-block" id="copyBtn">Copy hash</button>
     </div>
   `;
+  bindBack();
 
-  document.getElementById('backBtn').onclick = () => switchTab('home');
   document.getElementById('hashBtn').onclick = async () => {
     const input = document.getElementById('input').value;
     if (!input) { UI.toast('Enter some text', 'warning'); return; }
@@ -1623,18 +2293,15 @@ function renderHashTool() {
   };
 }
 
-// -------------------- TOOL: BASE64 --------------------
+// -------------------- BASE64 --------------------
 function renderBase64Tool() {
   const screen = document.getElementById('mainScreen');
   screen.innerHTML = `
-    <div class="flex items-center justify-between mb-16">
-      <h1 style="margin:0;">Base64</h1>
-      <button class="btn btn-secondary btn-sm" id="backBtn">← Back</button>
-    </div>
+    ${toolHeader('base64')}
     <div class="card">
       <div class="flex gap-8 mb-16">
-        <button class="btn btn-primary btn-sm" id="encodeTab">Encode</button>
-        <button class="btn btn-secondary btn-sm" id="decodeTab">Decode</button>
+        <button class="btn btn-primary" style="flex:1;" id="encodeTab">Encode</button>
+        <button class="btn btn-secondary" style="flex:1;" id="decodeTab">Decode</button>
       </div>
       <div class="input-group">
         <label id="inLabel">Text</label>
@@ -1645,23 +2312,21 @@ function renderBase64Tool() {
         <label>Result</label>
         <textarea class="textarea" id="output" rows="4" readonly></textarea>
       </div>
-      <button class="btn btn-secondary btn-block mt-8" id="copyBtn">Copy result</button>
+      <button class="btn btn-secondary btn-block" id="copyBtn">Copy result</button>
     </div>
   `;
+  bindBack();
 
-  document.getElementById('backBtn').onclick = () => switchTab('home');
   let mode = 'encode';
-
   function setMode(m) {
     mode = m;
     document.getElementById('inLabel').textContent = m === 'encode' ? 'Text' : 'Base64';
     document.getElementById('processBtn').textContent = m === 'encode' ? 'Encode' : 'Decode';
     document.getElementById('input').value = '';
     document.getElementById('output').value = '';
-    document.getElementById('encodeTab').className = 'btn btn-sm ' + (m === 'encode' ? 'btn-primary' : 'btn-secondary');
-    document.getElementById('decodeTab').className = 'btn btn-sm ' + (m === 'decode' ? 'btn-primary' : 'btn-secondary');
+    document.getElementById('encodeTab').className = 'btn ' + (m === 'encode' ? 'btn-primary' : 'btn-secondary');
+    document.getElementById('decodeTab').className = 'btn ' + (m === 'decode' ? 'btn-primary' : 'btn-secondary');
   }
-
   document.getElementById('encodeTab').onclick = () => setMode('encode');
   document.getElementById('decodeTab').onclick = () => setMode('decode');
 
@@ -1673,39 +2338,35 @@ function renderBase64Tool() {
       Telegram.haptic('success');
     } catch(e) { UI.toast('Invalid input', 'error'); }
   };
-
   document.getElementById('copyBtn').onclick = () => {
     const out = document.getElementById('output').value;
     if (out) UI.copyToClipboard(out);
   };
 }
 
-// -------------------- TOOL: PASSWORD --------------------
+// -------------------- PASSWORD --------------------
 function renderPasswordTool() {
   const screen = document.getElementById('mainScreen');
   screen.innerHTML = `
-    <div class="flex items-center justify-between mb-16">
-      <h1 style="margin:0;">Password</h1>
-      <button class="btn btn-secondary btn-sm" id="backBtn">← Back</button>
-    </div>
+    ${toolHeader('password')}
     <div class="card">
       <div class="input-group">
         <label>Length: <span id="lenVal">16</span></label>
         <input type="range" id="length" min="8" max="64" value="16" style="width:100%;">
       </div>
-      <div class="flex flex-col gap-8 mb-16">
-        <label class="flex items-center gap-8"><input type="checkbox" id="upper" checked> Uppercase</label>
-        <label class="flex items-center gap-8"><input type="checkbox" id="lower" checked> Lowercase</label>
-        <label class="flex items-center gap-8"><input type="checkbox" id="numbers" checked> Numbers</label>
-        <label class="flex items-center gap-8"><input type="checkbox" id="symbols" checked> Symbols</label>
+      <div class="mb-16">
+        <label class="check-row"><input type="checkbox" id="upper" checked> Uppercase letters</label>
+        <label class="check-row"><input type="checkbox" id="lower" checked> Lowercase letters</label>
+        <label class="check-row"><input type="checkbox" id="numbers" checked> Numbers</label>
+        <label class="check-row"><input type="checkbox" id="symbols" checked> Symbols</label>
       </div>
       <button class="btn btn-primary btn-block mb-16" id="genBtn">Generate</button>
-      <div id="result" style="background:var(--surface2); border-radius:12px; padding:16px; word-break:break-all; font-family:monospace; font-size:16px; text-align:center; min-height:52px; display:flex; align-items:center; justify-content:center;">Tap generate</div>
+      <div id="result" style="background:var(--surface2); border-radius:14px; padding:16px; word-break:break-all; font-family:ui-monospace,monospace; font-size:15px; text-align:center; min-height:54px; display:flex; align-items:center; justify-content:center; color:var(--text-soft);">Tap generate</div>
       <button class="btn btn-secondary btn-block mt-8" id="copyBtn">Copy</button>
     </div>
   `;
+  bindBack();
 
-  document.getElementById('backBtn').onclick = () => switchTab('home');
   document.getElementById('length').oninput = (e) => document.getElementById('lenVal').textContent = e.target.value;
 
   document.getElementById('genBtn').onclick = () => {
@@ -1718,40 +2379,39 @@ function renderPasswordTool() {
     });
     if (!pw) { UI.toast('Select at least one character type', 'warning'); return; }
     document.getElementById('result').textContent = pw;
+    document.getElementById('result').style.color = 'var(--text)';
     Telegram.haptic('success');
   };
-
   document.getElementById('copyBtn').onclick = () => {
     const pw = document.getElementById('result').textContent;
     if (pw && pw !== 'Tap generate') UI.copyToClipboard(pw);
   };
 }
 
-// -------------------- TOOL: UUID --------------------
+// -------------------- UUID --------------------
 function renderUUIDTool() {
   const screen = document.getElementById('mainScreen');
   screen.innerHTML = `
-    <div class="flex items-center justify-between mb-16">
-      <h1 style="margin:0;">UUID</h1>
-      <button class="btn btn-secondary btn-sm" id="backBtn">← Back</button>
-    </div>
+    ${toolHeader('uuid')}
     <div class="card">
       <div class="input-group">
         <label>How many?</label>
         <input class="input" type="number" id="count" value="5" min="1" max="50">
       </div>
       <button class="btn btn-primary btn-block mb-16" id="genBtn">Generate</button>
-      <div id="list" style="font-family:monospace; font-size:13px;"></div>
+      <div id="list" style="font-family:ui-monospace,monospace; font-size:12.5px;"></div>
       <button class="btn btn-secondary btn-block mt-8" id="copyBtn">Copy all</button>
     </div>
   `;
+  bindBack();
 
-  document.getElementById('backBtn').onclick = () => switchTab('home');
   document.getElementById('genBtn').onclick = () => {
     const count = parseInt(document.getElementById('count').value) || 1;
     const uuids = [];
     for (let i = 0; i < count; i++) uuids.push(TextTools.generateUUID());
-    document.getElementById('list').innerHTML = uuids.map(u => `<div style="padding:6px 0; border-bottom:1px solid var(--border);">${u}</div>`).join('');
+    document.getElementById('list').innerHTML = uuids.map(u =>
+      `<div style="padding:8px 0; border-bottom:1px solid var(--border-soft); word-break:break-all;">${u}</div>`
+    ).join('');
     Telegram.haptic('success');
   };
   document.getElementById('copyBtn').onclick = () => {
@@ -1796,6 +2456,7 @@ function showOnboarding() {
 async function init() {
   Telegram.init();
   State.load();
+  Ads.init();
   applyTheme();
 
   document.querySelectorAll('.nav-item').forEach(el => {
@@ -1809,16 +2470,14 @@ async function init() {
     if (e.key === 'Escape') UI.closeModal();
   });
 
-  if (!State.settings.onboardingDone) {
-    showOnboarding();
-  } else {
-    switchTab('home');
-  }
+  if (!State.settings.onboardingDone) showOnboarding();
+  else switchTab('home');
 
   console.log('PocketBoard initialized', {
     telegram: Telegram.isAvailable,
     user: Telegram.user,
-    theme: Telegram.getTheme()
+    theme: Telegram.getTheme(),
+    adsAvailable: Ads.isAvailable()
   });
 }
 
