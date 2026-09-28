@@ -3,7 +3,7 @@
 // Only env var needed in Vercel: TELEGRAM_BOT_TOKEN
 // Shared secret between this endpoint and Telegram's setWebhook call is "Hello".
 
-const BOT_TOKEN = process.env.8812857538:AAEUD96Ltzqmxrx_uNX2K8n-xQEh7q-RSq0;
+const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 const WEBHOOK_SECRET = 'Hello';
 const MINIAPP_URL = process.env.MINIAPP_URL || 'https://pocket-board-nine.vercel.app/';
 
@@ -17,12 +17,10 @@ async function tg(method, payload) {
 }
 
 export default async function handler(req, res) {
-  // Only accept POST
   if (req.method !== 'POST') {
     return res.status(405).json({ ok: false, error: 'method_not_allowed' });
   }
 
-  // Verify the request really came from Telegram
   const secret = req.headers['x-telegram-bot-api-secret-token'];
   if (!secret || secret !== WEBHOOK_SECRET) {
     return res.status(401).json({ ok: false, error: 'unauthorized' });
@@ -41,11 +39,9 @@ export default async function handler(req, res) {
     const chatId = msg?.chat?.id;
 
     if (!chatId) {
-      // Nothing to respond to (callback, inline query, etc.)
       return res.status(200).json({ ok: true });
     }
 
-    // Handle /start — send the Mini App button
     if (text.startsWith('/start')) {
       await tg('sendMessage', {
         chat_id: chatId,
@@ -56,17 +52,11 @@ export default async function handler(req, res) {
         parse_mode: 'Markdown',
         reply_markup: {
           inline_keyboard: [[
-            {
-              text: '🔒 Open PocketBoard',
-              web_app: { url: MINIAPP_URL },
-            },
+            { text: '🔒 Open PocketBoard', web_app: { url: MINIAPP_URL } },
           ]],
         },
       });
-    }
-
-    // Handle /help
-    else if (text.startsWith('/help')) {
+    } else if (text.startsWith('/help')) {
       await tg('sendMessage', {
         chat_id: chatId,
         text:
@@ -87,10 +77,7 @@ export default async function handler(req, res) {
           ]],
         },
       });
-    }
-
-    // Handle /app
-    else if (text.startsWith('/app')) {
+    } else if (text.startsWith('/app')) {
       await tg('sendMessage', {
         chat_id: chatId,
         text: 'Tap below to open PocketBoard:',
@@ -104,9 +91,7 @@ export default async function handler(req, res) {
 
     return res.status(200).json({ ok: true });
   } catch (err) {
-    // Log internally but never leak details to Telegram
     console.error('webhook error:', err);
-    // Always return 200 so Telegram doesn't retry-storm on errors
     return res.status(200).json({ ok: true });
   }
 }
