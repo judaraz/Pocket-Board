@@ -3,7 +3,7 @@
 // Auth: shared secret header (x-pocketboard-secret). Client sends "Hello".
 // You only need to set TELEGRAM_BOT_TOKEN in Vercel env vars.
 
-const BOT_TOKEN = process.env.8812857538:AAEUD96Ltzqmxrx_uNX2K8n-xQEh7q-RSq0;
+const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 // The Mini App sends this value in the x-pocketboard-secret header.
 // Hard-coded per your request. Change both sides if you want a different value.
 const SHARED_SECRET = 'Hello';
