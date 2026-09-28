@@ -1,8 +1,12 @@
 // api/send-file.js
 // Receives a processed image from the Mini App and sends it to the user via the bot.
+// Auth: shared secret header (x-pocketboard-secret). Client sends "Hello".
+// You only need to set TELEGRAM_BOT_TOKEN in Vercel env vars.
 
 const BOT_TOKEN = process.env.8812857538:AAEUD96Ltzqmxrx_uNX2K8n-xQEh7q-RSq0;
-const WEBHOOK_SECRET = process.env.Hello;
+// The Mini App sends this value in the x-pocketboard-secret header.
+// Hard-coded per your request. Change both sides if you want a different value.
+const SHARED_SECRET = 'Hello';
 
 export const config = {
   api: {
@@ -13,14 +17,29 @@ export const config = {
 };
 
 export default async function handler(req, res) {
+  // CORS — allow the Mini App origin to call this
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, x-pocketboard-secret');
+
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+
   if (req.method !== 'POST') {
     return res.status(405).json({ ok: false, error: 'method_not_allowed' });
   }
 
-  // Verify the request comes from our Mini App
+  // Verify the request comes from our Mini App via shared secret
   const secret = req.headers['x-pocketboard-secret'];
-  if (!WEBHOOK_SECRET || secret !== WEBHOOK_SECRET) {
+  if (!secret || secret !== SHARED_SECRET) {
     return res.status(401).json({ ok: false, error: 'unauthorized' });
+  }
+
+  // Ensure the bot token is configured
+  if (!BOT_TOKEN) {
+    console.error('TELEGRAM_BOT_TOKEN is not set');
+    return res.status(500).json({ ok: false, error: 'bot_token_missing' });
   }
 
   try {
@@ -31,10 +50,10 @@ export default async function handler(req, res) {
     }
 
     // Strip data URL prefix if present
-    const base64Data = imageBase64.replace(/^data:image\/\w+;base64,/, '');
+    const base64Data = String(imageBase64).replace(/^data:image\/\w+;base64,/, '');
     const buffer = Buffer.from(base64Data, 'base64');
 
-    // Reject files larger than 20MB (Telegram photo limit is 10MB, doc limit is 50MB)
+    // Reject oversized files (Telegram document limit is 50MB, we cap at 20MB)
     if (buffer.length > 20 * 1024 * 1024) {
       return res.status(413).json({ ok: false, error: 'file_too_large' });
     }
@@ -54,7 +73,11 @@ export default async function handler(req, res) {
 
     if (!tgData.ok) {
       console.error('Telegram API error:', tgData);
-      return res.status(502).json({ ok: false, error: 'telegram_failed', detail: tgData.description });
+      return res.status(502).json({
+        ok: false,
+        error: 'telegram_failed',
+        detail: tgData.description || 'unknown'
+      });
     }
 
     return res.status(200).json({ ok: true, messageId: tgData.result.message_id });
